@@ -19,6 +19,9 @@ header{
 #login:hover{
     cursor: pointer;
 }
+input{
+    text-align: center;
+}
 
 #start-station, #end-station{
     display: flex;
@@ -30,4 +33,12 @@ label{
     display: flex;
     justify-content: center;
     margin-top: 2rem;
+    font-weight: bolder;
+    font-size: large;
+}
+select{
+    border-radius: 7px;
+}
+select:hover, option:hover{
+    cursor: pointer;
 }
