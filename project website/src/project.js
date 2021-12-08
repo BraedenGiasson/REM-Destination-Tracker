@@ -1,50 +1,22 @@
 
-let getAllStations = document.querySelector('#all-stations');
+let getAllStations = document.querySelectorAll('.all-stations');
 
-function test(){
+async function GettingAllStations(){
 
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", "../../all-stations.txt", true);
-    xhr.onload = function(){
-        let lines = xhr.responseText.split("\n");
-        console.log(lines);
-        console.log(xhr.responseText + "\n");
+    // Getting the promise for the fetch
+    let theFetch = await fetch( "http://10.101.0.12:8080/stations" );
+    // Getting the response json from the json promise
+    let responseFromFetch = await theFetch.json();
 
-        console.log(xhr.response);
-        console.log(xhr);
-
-        for (let i = 0; i < lines.length; i++) {
-            CreatingOptionsForBranches ( lines[i] )
+    // For each station, create a new option with the name of the station
+    for (let i = 0; i < responseFromFetch.length; i++) {
+        // For each select (2), create an option and append the station name
+        for (let m = 0; m < getAllStations.length; m++) {
+            let createOption = document.createElement('option');
+            createOption.innerHTML = responseFromFetch[i].Name;
+            getAllStations[m].appendChild(createOption);
         }
     }
-    xhr.send();
-}
-test();
-
-function CreatingOptionsForBranches( line ){
-
-    let createOption = document.createElement('option');
-    createOption.innerHTML = line;
-    getAllStations.appendChild( createOption );
-    document.body.appendChild ( getAllStations );
 }
 
-function test2(){
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", "../../Main Branch stations.txt", true);
-    xhr.onload = function(){
-        let lines = xhr.responseText.split("\n");
-        console.log(lines);
-        console.log(xhr.responseText + "\n");
-
-        console.log(xhr.response);
-        console.log(xhr);
-
-        for (let i = 0; i < lines.length; i++) {
-            CreatingOptionsForBranches ( lines[i] )
-        }
-    }
-    xhr.send();
-}
-test2();
+GettingAllStations();

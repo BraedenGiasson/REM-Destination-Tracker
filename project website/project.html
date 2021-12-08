@@ -13,9 +13,24 @@
         <h2 id="login">Log In</h2>
     </header>
     <main>
-        <select name="Different stations" id="all-stations">
+        <!-- Start station -->
+        <label for="Start Different stations">Choose a start station</label>
 
-        </select>
+        <div id="start-station">
+            <select name="Start Different stations" class="all-stations" style="text-align-last: center;">
+                <option selected disabled hidden>--Choose a start station--</option>
+            </select>
+        </div>
+
+        <!-- End station -->
+
+        <label for="End Different stations" >Choose a end station</label>
+
+        <div id="end-station">
+            <select name="End Different stations" class="all-stations" style="text-align-last: center;">
+                <option selected disabled hidden>--Choose a end station--</option>
+            </select>
+        </div>
     </main>
     
     <script src="./src/project.js"></script>

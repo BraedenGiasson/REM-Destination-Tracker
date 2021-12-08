@@ -8,6 +8,7 @@
 
 body{
     margin: 10px;
+    background-color: #A365FF;
 }
 
 header{
@@ -17,4 +18,16 @@ header{
 
 #login:hover{
     cursor: pointer;
+}
+
+#start-station, #end-station{
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+label{
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
 }
