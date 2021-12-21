@@ -17,7 +17,7 @@
         <label for="Start Different stations">Choose a start station</label>
 
         <div id="start-station">
-            <select name="Start Different stations" class="all-stations" style="text-align-last: center;">
+            <select  required name="Start Different stations" class="all-stations" style="text-align-last: center;">
                 <option selected disabled hidden>--Choose a start station--</option>
             </select>
         </div>
@@ -27,16 +27,22 @@
         <label for="End Different stations" >Choose a end station</label>
 
         <div id="end-station">
-            <select name="End Different stations" class="all-stations" style="text-align-last: center;">
+            <select required name="End Different stations" class="all-stations" style="text-align-last: center;">
                 <option selected disabled hidden>--Choose a end station--</option>
             </select>
         </div>
 
         <!-- Date for trip -->
 
-        <label for="End Different stations" >Choose a Date for your trip</label>
+        <label for="date" >Choose a Date for your trip</label>
 
-        <input type="date">
+        <input type="date" name="date" required>
+
+        <!-- Time for their trip -->
+
+        <label for="time">Choose a time</label>
+
+        <input type="time" name="time" min="05:00:00" max="02:00:00" required>
     </main>
     
     <script src="./src/project.js"></script>

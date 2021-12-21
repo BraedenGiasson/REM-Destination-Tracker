@@ -19,4 +19,14 @@ async function GettingAllStations(){
     }
 }
 
+async function TestSchedule(){
+
+    let fetching = await fetch( "http://10.101.0.12:8080/schedule/Brossard" );
+
+    let responseFromFetch = await fetching.json();
+
+    console.log(responseFromFetch);
+}
+
 GettingAllStations();
+TestSchedule();
