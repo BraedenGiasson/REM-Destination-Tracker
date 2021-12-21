@@ -8,7 +8,7 @@
 
 body{
     margin: 10px;
-    background-color: #A365FF;
+    background-color: #9CC0F9;
 }
 
 header{
@@ -44,9 +44,27 @@ label{
     font-weight: bolder;
     font-size: large;
 }
-select{
+select, input[type="date"], input[type="time"]{
     border-radius: 7px;
+    border: 0.5px solid black;
 }
-select:hover, option:hover{
+select:hover, option:hover, input[type="date"]:hover, input[type="time"]:hover{
     cursor: pointer;
+}
+#submit-btn{
+    display: flex;
+    margin: 0 auto;
+    margin-top: 60px;
+    padding: 7px 12px;
+    border:transparent;
+    border-radius: 14px;
+    background-color: #1A73E8;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    transition: all 0.25s ease-in
+}
+#submit-btn:hover{
+    cursor: pointer;
+    transform: scale(1.1);
 }
