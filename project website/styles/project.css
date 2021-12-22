@@ -27,8 +27,12 @@ input[type="date"]{
     margin-top: 20px;
 }
 input[type="time"]{
-    margin-left: 40%;
+    margin-left: 38%;
     margin-top: 20px;
+    width: 110px;
+}
+select{
+    padding: 3.5px 0px;
 }
 
 #start-station, #end-station{
@@ -62,9 +66,15 @@ select:hover, option:hover, input[type="date"]:hover, input[type="time"]:hover{
     color: white;
     font-weight: bold;
     font-size: 15px;
-    transition: all 0.25s ease-in
+    transition: all 0.2s ease;
 }
 #submit-btn:hover{
     cursor: pointer;
     transform: scale(1.1);
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    margin-top: 40px;
 }

@@ -13,39 +13,48 @@
         <!-- <h2 id="login">Log In</h2> -->
     </header>
     <main>
-        <!-- Start station -->
-        <label for="Start Different stations">Choose a start station</label>
+        <form action="">
+            <!-- Start station -->
+            
+            <label for="Start Different stations">Choose a start station</label>
 
-        <div id="start-station">
-            <select  required name="Start Different stations" class="all-stations" style="text-align-last: center;">
-                <option selected disabled hidden>--Choose a start station--</option>
-            </select>
-        </div>
+            <div id="start-station">
+                <select name="Start Different stations" class="all-stations" id="start"
+                style="text-align-last: center;" required>
+                    <option value="" selected disabled hidden>--Choose a start station--</option>
+                </select>
+            </div>
 
-        <!-- End station -->
+            <!-- End station -->
 
-        <label for="End Different stations" >Choose a end station</label>
+            <label for="End Different stations" >Choose a end station</label>
 
-        <div id="end-station">
-            <select required name="End Different stations" class="all-stations" style="text-align-last: center;">
-                <option selected disabled hidden>--Choose a end station--</option>
-            </select>
-        </div>
+            <div id="end-station">
+                <select name="End Different stations" class="all-stations" id="end"
+                style="text-align-last: center;" required>
+                    <option value="" selected disabled hidden>--Choose a end station--</option>
+                </select>
+            </div>
 
-        <!-- Date for trip -->
+            <!-- Date for trip -->
 
-        <label for="date" >Choose a Date for your trip</label>
+            <label for="date" >Choose a Date for your trip</label>
 
-        <input type="date" name="date" required>
+            <input type="date" name="date" required>
 
-        <!-- Time for their trip -->
+            <!-- Time for their trip -->
 
-        <label for="time">Choose a time</label>
+            <label for="time">Choose a time</label>
 
-        <input type="time" name="time" min="05:00:00" max="02:00:00" required>
+            <input type="time" name="time" min="05:00:00" max="02:00:00" required>
 
-        <!-- Starting the trip -->
-        <button type="submit" id="submit-btn">Start your trip</button>
+            <!-- Starting the trip -->
+            <button type="submit" id="submit-btn">Start your trip</button>
+
+            <div class="grid-container" id="grid">
+
+            </div>
+        </form>
     </main>
     
     <script src="./src/project.js"></script>
