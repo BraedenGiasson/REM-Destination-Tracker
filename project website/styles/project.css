@@ -77,5 +77,4 @@ select:hover, option:hover, input[type="date"]:hover, input[type="time"]:hover{
     display: grid;
     grid-template-columns: auto 30px auto auto;
     margin-top: 40px;
-    gap: 5px;
 }

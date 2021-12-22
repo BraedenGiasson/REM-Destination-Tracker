@@ -194,7 +194,8 @@ function CreateGrid(){
         let theName = document.createElement("div");
         theName.innerHTML = array[i].name;
         theName.style.gridRow = (i + 1);
-        theName.style.gridColumn = 1 ;
+        theName.style.gridColumn = 1;
+        theName.style.textAlign = "end";
         getGrid.appendChild(theName);
 
         let theTime = document.createElement("div");
@@ -203,7 +204,10 @@ function CreateGrid(){
         theTime.style.gridColumn = 3;
         getGrid.appendChild(theTime);
 
-        let createCanvas = document.createElement('canvas');
+        CreateLine( getGrid, i );
+        CreateRectangle( getGrid, i );
+
+        //let createCanvas = document.createElement('canvas');
         // createCanvas.width = 30;
         // createCanvas.height = 100;
         // let canvas2d = createCanvas.getContext('2d');
@@ -211,15 +215,16 @@ function CreateGrid(){
         // canvas2d.moveTo(0,0);
         // canvas2d.lineTo(0, 300);
         // canvas2d.stroke();
-        createCanvas.style.borderRadius = 4;
-        let canvas2d = createCanvas.getContext('2d');
-        canvas2d.strokeRect(20,20,5,5)
-        canvas2d.fillStyle = "blue";
-        canvas2d.fill();
-        document.body.appendChild(createCanvas);
-        createCanvas.style.gridColumn = 2;
-        createCanvas.style.gridRow = (i + 1);
-        getGrid.appendChild(createCanvas);
+        
+        // let canvas2d = createCanvas.getContext('2d');
+        // canvas2d.fillStyle = "blue";
+        // canvas2d.fillRect(20,20,5,5)
+        // //canvas2d.fill();
+        // document.body.appendChild(createCanvas);
+        // createCanvas.style.gridColumn = 2;
+        // createCanvas.style.gridRow = (i + 1);
+        // getGrid.appendChild(createCanvas);
+        
 
         /*let createCanvas = document.createElement('canvas');
         createCanvas.width = 30;
@@ -239,6 +244,36 @@ function CreateGrid(){
         getGrid.appendChild(createCanvas);*/
     }
     
+}
+function CreateLine( getGrid, i ){
+    let createCanvas = document.createElement('canvas');
+    createCanvas.width = 30;
+    createCanvas.height = 100;
+    let canvas2d = createCanvas.getContext('2d');
+    canvas2d.beginPath();
+    canvas2d.moveTo(2,0);
+    canvas2d.lineWidth = 2;
+    canvas2d.lineTo(0, 300);
+    canvas2d.stroke();
+    document.body.appendChild(createCanvas);
+    createCanvas.style.gridColumn = 2;
+    createCanvas.style.gridRow = (i + 1);
+    createCanvas.style.marginLeft = "40%";
+    getGrid.appendChild(createCanvas);
+}
+function CreateRectangle( getGrid, i ){
+    let createCanvas = document.createElement('canvas');
+    createCanvas.width = 30;
+    createCanvas.height = 100;
+    let canvas2d = createCanvas.getContext('2d');
+    canvas2d.fillStyle = "black";
+    canvas2d.fillRect(0,0,7,7)
+    document.body.appendChild(createCanvas);
+    createCanvas.style.gridColumn = 2;
+    createCanvas.style.gridRow = (i + 1);
+    createCanvas.style.marginLeft = "37%";
+    createCanvas.style.zIndex = 10;
+    getGrid.appendChild(createCanvas);
 }
 
 class Station
