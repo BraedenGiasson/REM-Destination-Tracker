@@ -84,7 +84,12 @@ async function GetDistanceEachStation( stationsOnPath ){
     console.log(stationsOnPath);
     for (let i = 0; i < stationsOnPath.length; i++) {
         
-        if (i == 0){
+        if (i === 0){
+            let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
+                stationsOnPath[i].Name, 0);
+            array.push(newStationClass);
+        }
+        else if (i == 1){
             let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i].Name 
             + "/" + stationsOnPath[i + 1].Name );
             let responseFromFetch = await fetchDistance.json();
@@ -118,7 +123,7 @@ async function GetDistanceEachStation( stationsOnPath ){
             console.log("time " + timee);
 
             let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
-                stationsOnPath[i + 1].Name, getTimeTaken);
+                stationsOnPath[i].Name, getTimeTaken);
             array.push(newStationClass);
         }
         else if(i > 1){
@@ -218,7 +223,17 @@ function CreateGrid(){
 
     for (let i = 1; i <= array.length; i++) {
         let theName = document.createElement("div");
-        theName.innerHTML = array[i].name;
+
+        if(i === 1){
+            theName.innerHTML = "Start at " + array[i - 1].name;
+        }
+        else if (i === (array.length)){
+            theName.innerHTML = "End at " + array[i - 1].name;
+        }
+        else{
+            theName.innerHTML = array[i - 1].name;
+        }
+        
         theName.style.gridRow = (i + 1);
         theName.style.gridColumn = 1;
         theName.style.textAlign = "end";
@@ -226,7 +241,7 @@ function CreateGrid(){
         getGrid.appendChild(theName);
 
         let theTime = document.createElement("div");
-        theTime.innerHTML = array[i].time;
+        theTime.innerHTML = array[i - 1].time;
         theTime.style.gridRow = (i + 1);
         theTime.style.gridColumn = 3;
         theTime.style.fontSize = "14.75px";
@@ -241,13 +256,15 @@ function CreateGrid(){
             isFirstRow = false;
         }
 
-        if(i > 0){
-            if (array[i].SegmentId !== array[i - 1].SegmentId){
+        if(i > 1){
+            if (array[i - 1].SegmentId !== array[i - 2].SegmentId){
                 isDifferent = true;
             }
         }
 
-        CreateLine( getGrid, i, isDifferent, isFirstRow );
+        if (i !== (array.length)){
+            CreateLine( getGrid, i, isDifferent, isFirstRow );
+        }
         CreateRectangle( getGrid, i, isDifferent, isFirstRow );
     }
     
