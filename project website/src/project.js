@@ -192,26 +192,54 @@ async function CalculateTime( distance ){
 }
 
 let isDifferent = false;
+let isFirstRow = false;
+
 function CreateGrid(){
 
     let getGrid = document.querySelector('.grid-container');
-    getGrid.style.gridTemplateRows = "repeat(" + getNumStationsOnPath + ", 100px )";
-    console.log(getGrid.style.gridTemplateRows.length);
-    // let isDifferent = false;
+    getGrid.style.gridTemplateRows = "repeat(" + (array.length + 1) + ", 100px )";
+    let getNumberOfColumns = window.getComputedStyle(getGrid).getPropertyValue("grid-template-columns").split(" ").length;
+    
+    let columnTitles = [ "Station Name", "Itinerary", "Arrival Time", "Information", "Notifications" ];
+    let columnTitlesHeight = [ "30%", "100%", "62%", "63%", "60%" ];
 
-    for (let i = 0; i < array.length; i++) {
+    for (let l = 0; l < getNumberOfColumns; l++) {
+        let currentTitleElement = document.createElement('h5');
+        currentTitleElement.innerHTML = columnTitles[l];
+        currentTitleElement.style.fontSize = "14.5px";
+        currentTitleElement.style.gridRow = 1;
+        currentTitleElement.style.borderBottom = "3px solid black";
+        currentTitleElement.style.gridColumn = (l + 1);
+        currentTitleElement.style.textAlign = "center";
+        currentTitleElement.style.marginTop = columnTitlesHeight[l];
+        currentTitleElement.style.textDecoration = "underline";
+        getGrid.appendChild(currentTitleElement);
+    }
+
+    for (let i = 1; i <= array.length; i++) {
         let theName = document.createElement("div");
         theName.innerHTML = array[i].name;
         theName.style.gridRow = (i + 1);
         theName.style.gridColumn = 1;
         theName.style.textAlign = "end";
+        theName.style.fontSize = "14.75px";
         getGrid.appendChild(theName);
 
         let theTime = document.createElement("div");
         theTime.innerHTML = array[i].time;
         theTime.style.gridRow = (i + 1);
         theTime.style.gridColumn = 3;
+        theTime.style.fontSize = "14.75px";
         getGrid.appendChild(theTime);
+
+        if (i === 1){
+            theName.style.gridRowGap = "30px";
+            theTime.style.gridRowGap = "30px";
+            isFirstRow = true;
+        }
+        else{
+            isFirstRow = false;
+        }
 
         if(i > 0){
             if (array[i].SegmentId !== array[i - 1].SegmentId){
@@ -219,48 +247,12 @@ function CreateGrid(){
             }
         }
 
-        CreateLine( getGrid, i, isDifferent );
-        CreateRectangle( getGrid, i, isDifferent );
-
-        //let createCanvas = document.createElement('canvas');
-        // createCanvas.width = 30;
-        // createCanvas.height = 100;
-        // let canvas2d = createCanvas.getContext('2d');
-        // canvas2d.beginPath();
-        // canvas2d.moveTo(0,0);
-        // canvas2d.lineTo(0, 300);
-        // canvas2d.stroke();
-        
-        // let canvas2d = createCanvas.getContext('2d');
-        // canvas2d.fillStyle = "blue";
-        // canvas2d.fillRect(20,20,5,5)
-        // //canvas2d.fill();
-        // document.body.appendChild(createCanvas);
-        // createCanvas.style.gridColumn = 2;
-        // createCanvas.style.gridRow = (i + 1);
-        // getGrid.appendChild(createCanvas);
-        
-
-        /*let createCanvas = document.createElement('canvas');
-        createCanvas.width = 30;
-        createCanvas.height = 30;
-        let canvas2d = createCanvas.getContext('2d');
-        let x = createCanvas.width / 2;
-        let y = createCanvas.height / 2;
-        let radius = 45;
-        canvas2d.beginPath();
-        canvas2d.arc(createCanvas.width, createCanvas.height, radius,0, 2 * Math.PI, false);
-        canvas2d.lineWidth = 3;
-        canvas2d.strokeStyle = '#FF0000';
-        canvas2d.stroke();
-        document.body.appendChild(createCanvas);
-        createCanvas.style.gridColumn = 2;
-        createCanvas.style.gridRow = (i + 1);
-        getGrid.appendChild(createCanvas);*/
+        CreateLine( getGrid, i, isDifferent, isFirstRow );
+        CreateRectangle( getGrid, i, isDifferent, isFirstRow );
     }
     
 }
-function CreateLine( getGrid, i, isDifferent ){
+function CreateLine( getGrid, i, isDifferent, isFirstRow ){
     let createCanvas = document.createElement('canvas');
     createCanvas.width = 30;
     createCanvas.height = 100;
@@ -276,6 +268,9 @@ function CreateLine( getGrid, i, isDifferent ){
     else{
         canvas2d.strokeStyle = "black";
     }
+    if(isFirstRow){
+        createCanvas.style.gridRowGap = "30px";
+    }
 
     canvas2d.stroke();
     document.body.appendChild(createCanvas);
@@ -284,7 +279,7 @@ function CreateLine( getGrid, i, isDifferent ){
     createCanvas.style.marginLeft = "40%";
     getGrid.appendChild(createCanvas);
 }
-function CreateRectangle( getGrid, i, isDifferent ){
+function CreateRectangle( getGrid, i, isDifferent, isFirstRow ){
     let createCanvas = document.createElement('canvas');
     createCanvas.width = 30;
     createCanvas.height = 100;
@@ -295,6 +290,9 @@ function CreateRectangle( getGrid, i, isDifferent ){
     }
     else{
         canvas2d.fillStyle = "black";
+    }
+    if(isFirstRow){
+        createCanvas.style.gridRowGap = "30px";
     }
     
     canvas2d.fillRect(0,0,7,7)
