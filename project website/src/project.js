@@ -42,6 +42,8 @@ async function GetStationsPath(){
     GetDistanceEachStation( responseFromFetch );
 }
 let totalDistance = 0;
+let array = [];
+array.length = getNumStationsOnPath;
 
 async function GetDistanceBetweenStations(){
 
@@ -75,7 +77,7 @@ async function GetStartStationSchedule(){
 }
 
 async function GetDistanceEachStation( stationsOnPath ){
-    let counter = 1;
+    let counter = 0;
     
     for (let i = 0; i < stationsOnPath.length; i++) {
         
@@ -111,6 +113,9 @@ async function GetDistanceEachStation( stationsOnPath ){
             timee+=getTimeTaken;
 
             console.log("time " + timee);
+
+            let newStationClass = new Station(stationsOnPath[i + 1].Name, getTimeTaken);
+            array.push(newStationClass);
         }
         else if(i > 1){
             let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i - 1].Name 
@@ -144,12 +149,15 @@ async function GetDistanceEachStation( stationsOnPath ){
             timee+=getTimeTaken;
 
             console.log("time " + timee);
+
+            let newStationClass = new Station(stationsOnPath[i].Name, getTimeTaken);
+            array.push(newStationClass);
         }
     }
     console.log("final counter " + counter);
     console.log("final time " + timee);
 
-    ShowArray();
+    console.log(array);
     CreateGrid();
 }
 
@@ -175,16 +183,6 @@ async function CalculateTime( distance ){
     console.log("time " + timee);
 }
 
-function ShowArray(){
-    let array = [];
-    array.length = getNumStationsOnPath;
-
-    for (let m = 0; m < array.length; m++) {
-        array.push(new Object());
-    }
-    console.log(array);
-}
-
 
 function CreateGrid(){
 
@@ -192,10 +190,68 @@ function CreateGrid(){
     getGrid.style.gridTemplateRows = "repeat(" + getNumStationsOnPath + ", 100px )";
     console.log(getGrid.style.gridTemplateRows.length);
 
-    for (let i = 0; i < getNumStationsOnPath; i++) {
-        let cell = document.createElement("div");
-        cell.innerHTML = i + 1;
-        cell.style.gridRow = (i + 1);
-        getGrid.appendChild(cell);
+    for (let i = 0; i < array.length; i++) {
+        let theName = document.createElement("div");
+        theName.innerHTML = array[i].name;
+        theName.style.gridRow = (i + 1);
+        theName.style.gridColumn = 1 ;
+        getGrid.appendChild(theName);
+
+        let theTime = document.createElement("div");
+        theTime.innerHTML = array[i].time;
+        theTime.style.gridRow = (i + 1);
+        theTime.style.gridColumn = 3;
+        getGrid.appendChild(theTime);
+
+        let createCanvas = document.createElement('canvas');
+        // createCanvas.width = 30;
+        // createCanvas.height = 100;
+        // let canvas2d = createCanvas.getContext('2d');
+        // canvas2d.beginPath();
+        // canvas2d.moveTo(0,0);
+        // canvas2d.lineTo(0, 300);
+        // canvas2d.stroke();
+        createCanvas.style.borderRadius = 4;
+        let canvas2d = createCanvas.getContext('2d');
+        canvas2d.strokeRect(20,20,5,5)
+        canvas2d.fillStyle = "blue";
+        canvas2d.fill();
+        document.body.appendChild(createCanvas);
+        createCanvas.style.gridColumn = 2;
+        createCanvas.style.gridRow = (i + 1);
+        getGrid.appendChild(createCanvas);
+
+        /*let createCanvas = document.createElement('canvas');
+        createCanvas.width = 30;
+        createCanvas.height = 30;
+        let canvas2d = createCanvas.getContext('2d');
+        let x = createCanvas.width / 2;
+        let y = createCanvas.height / 2;
+        let radius = 45;
+        canvas2d.beginPath();
+        canvas2d.arc(createCanvas.width, createCanvas.height, radius,0, 2 * Math.PI, false);
+        canvas2d.lineWidth = 3;
+        canvas2d.strokeStyle = '#FF0000';
+        canvas2d.stroke();
+        document.body.appendChild(createCanvas);
+        createCanvas.style.gridColumn = 2;
+        createCanvas.style.gridRow = (i + 1);
+        getGrid.appendChild(createCanvas);*/
+    }
+    
+}
+
+class Station
+{
+    constructor ( name, time )
+    {
+        this.name = name;
+        this.time = time.toFixed(2);
+    }
+    get Name(){
+        return this.name;
+    }
+    get Time(){
+        return this.time;
     }
 }
