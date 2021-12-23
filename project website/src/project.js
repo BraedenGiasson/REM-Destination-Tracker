@@ -336,6 +336,9 @@ function GetClosestTimeToInputTime( mins, arrayToAddTo ){
 
 //#region Getting the distance between each station on the path
 
+let isSwitchedSegment = false;
+let isFirstStationOnNewSegment = false;
+
 async function GetDistanceEachStation( stationsOnPath ){
 
     console.log(stationsOnPath); // for my own use
@@ -346,6 +349,7 @@ async function GetDistanceEachStation( stationsOnPath ){
         
         // Creating date from the closest time to the input time
         let timeDate = new Date(getClosestTime);
+        let newTimeDate
         
         // If first index, start at closest time
         if (i === 0){
@@ -376,23 +380,62 @@ async function GetDistanceEachStation( stationsOnPath ){
             let getSpeedInMinutesForHour = averageSpeed/60;
             let getTimeTaken = (responseFromFetch/averageSpeed) * 60;
 
-            // setting new added minutes from time between stations
-            timeDate = new Date(getDateHTML.value + " " + arrayOfStationsOnPath[i - 1].time)
-            timeDate.setMinutes( timeDate.getMinutes() + Math.ceil(getTimeTaken) )
-            
-            // Formating time to just show hours and minutes
-            let formatTime = timeDate.toLocaleTimeString("en-GB");
-            let splittingByColon = formatTime.toString().split(":");
-            let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
-            console.log(getAllStationsOnPath);
+            console.log(isSwitchedSegment);
+
             // If there's not a duplicate (back-to-back) station, add to array
             if (getAllStationsOnPath[i].StationId !== getAllStationsOnPath[i - 1].StationId){
 
-                
+                if(isSwitchedSegment){
 
-                let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
-                    stationsOnPath[i].Name, newFormatedTime);
-                arrayOfStationsOnPath.push(newStationClass);
+                    // Creating date from the closest time to the input time
+                    let newTimeDate = new Date(newClosestTime);
+                    console.log(newTimeDate);
+                    console.log(arrayOfStationsOnPath);
+                    
+                    // setting new added minutes from time between stations
+                    if (isFirstStationOnNewSegment){
+                        console.log(newClosestTime);
+                        newTimeDate = new Date(newClosestTime);
+                        isFirstStationOnNewSegment = false;
+                        console.log("first time now false");
+                    }
+                    else{
+                        console.log("nopr");
+                        console.log(stationsOnPath.length);
+                        console.log(i);
+                        console.log(arrayOfStationsOnPath[i - 2]);
+                        console.log(arrayOfStationsOnPath[i - 2].time);
+                        newTimeDate = new Date(getDateHTML.value + " " + arrayOfStationsOnPath[i - 2].time);
+                    }
+                   
+                    newTimeDate.setMinutes( newTimeDate.getMinutes() + Math.ceil(getTimeTaken) )
+                    
+                    // Formating time to just show hours and minutes
+                    let formatTime = newTimeDate.toLocaleTimeString("en-GB");
+                    let splittingByColon = formatTime.toString().split(":");
+                    let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
+                    console.log(getAllStationsOnPath);
+
+                    let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
+                        stationsOnPath[i].Name, newFormatedTime);
+                    arrayOfStationsOnPath.push(newStationClass);
+                }
+                else{
+
+                    // setting new added minutes from time between stations
+                    timeDate = new Date(getDateHTML.value + " " + arrayOfStationsOnPath[i - 1].time)
+                    timeDate.setMinutes( timeDate.getMinutes() + Math.ceil(getTimeTaken) )
+                    
+                    // Formating time to just show hours and minutes
+                    let formatTime = timeDate.toLocaleTimeString("en-GB");
+                    let splittingByColon = formatTime.toString().split(":");
+                    let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
+                    console.log(getAllStationsOnPath);
+
+                    let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
+                        stationsOnPath[i].Name, newFormatedTime);
+                    arrayOfStationsOnPath.push(newStationClass);
+                }
             }
             else{
 
@@ -428,8 +471,11 @@ async function GetDistanceEachStation( stationsOnPath ){
                     newClosestTime = getNewHoursFromStation[indexNewClosestTime]; // setting closest time
 
                     console.log(newClosestTime);
-                    
                     console.log(responseFromNewScheduleFetch);
+
+                    isSwitchedSegment = true;
+                    isFirstStationOnNewSegment = true;
+                    console.log("now true");
                 }
             }
 
@@ -602,9 +648,15 @@ async function CreateNameAndTime(){
         }
 
         if(i > 1){
+            console.log(arrayOfStationsOnPath);
+            //console.log(arrayOfStationsOnPath[i].name + " " + arrayOfStationsOnPath[i - 1].name);
             // If the segment id is different to the previous, set to true (changing segments)
-            if (arrayOfStationsOnPath[i - 1].SegmentId !== arrayOfStationsOnPath[i - 2].SegmentId){
+            //console.log(arrayOfStationsOnPath[i] + " " + arrayOfStationsOnPath[i - 1]);
+            console.log(i);
+            console.log(arrayOfStationsOnPath[i - 1].segmentId + " " + arrayOfStationsOnPath[i - 2].segmentId);
+            if (arrayOfStationsOnPath[i - 1].segmentId !== arrayOfStationsOnPath[i - 2].segmentId){
                 isDifferent = true;
+                console.log("yes true");
             }
         }
 
@@ -615,7 +667,7 @@ async function CreateNameAndTime(){
 
         // If it's the last index, don't create extra line,
         // else, create the line between stations
-        if (i !== (arrayOfStationsOnPath.length)){
+        if (i !== arrayOfStationsOnPath.length){
             CreateLine( i, isDifferent );
         }
         CreateRectangle( i, isDifferent ); // creating rectangle
@@ -650,13 +702,14 @@ function CreateLine( i, isDifferent ){
     let createCanvas = document.createElement('canvas');
     SettingCanvasWidthHeight( createCanvas );
     let canvas2d = createCanvas.getContext('2d');
+    FillCanvasBasedOnIfDifferent( canvas2d, isDifferent, "stroke" );
     canvas2d.beginPath();
     canvas2d.moveTo(2,0);
     canvas2d.lineWidth = 2;
     canvas2d.lineTo(0, 300);
     canvas2d.stroke();
     
-    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "64%" );
+    CreatingCanvasDetails( createCanvas, i, "64%" );
 }
 
 //#endregion
@@ -668,9 +721,10 @@ function CreateRectangle( i, isDifferent ){
     let createCanvas = document.createElement('canvas');
     SettingCanvasWidthHeight( createCanvas );
     let canvas2d = createCanvas.getContext('2d');
+    FillCanvasBasedOnIfDifferent( canvas2d, isDifferent, "fill" );
     canvas2d.fillRect(0,0,7.5,7.5);
 
-    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "60%" )
+    CreatingCanvasDetails( createCanvas, i, "60%" )
 }
 
 //#endregion
@@ -685,17 +739,32 @@ function SettingCanvasWidthHeight( createCanvas ){
 
 //#endregion
 
-//#region Creating details for canvas (line and dot)
-
-function CreatingCanvasDetails ( createCanvas, canvas2d, i, isDifferent, value ){
+function FillCanvasBasedOnIfDifferent( canvas2d, isDifferent, styling ){
 
     // If the segment is different, change the color to blue; else, keep black
     if (isDifferent) {
-        canvas2d.fillStyle = "#1F06FE";
+
+        if (styling == "fill"){
+            canvas2d.fillStyle = "#1F06FE";
+        }
+        else if (styling == "stroke"){
+            canvas2d.strokeStyle = "#1F06FE";
+        }
     }
     else{
-        canvas2d.fillStyle = "black";
+
+        if (styling == "fill"){
+            canvas2d.fillStyle = "black";
+        }
+        else if (styling == "stroke"){
+            canvas2d.strokeStyle = "black";
+        }
     } 
+}
+
+//#region Creating details for canvas (line and dot)
+
+function CreatingCanvasDetails ( createCanvas, i, value ){
 
     document.body.appendChild(createCanvas);
     createCanvas.style.gridColumn = 2;
