@@ -363,7 +363,7 @@ function CreateGrid(){
 
 function CreateDetailsForColumnTitles( getNumberOfColumns, columnTitles ){
 
-    const firstColumn = 0, thirdColumn = 2;
+    const firstColumn = 0, thirdColumn = 2, fourthColumn = 3, fifthColumn = 4;
 
     // Create all titles for each column in grid
     for (let l = 0; l < getNumberOfColumns; l++) {
@@ -387,6 +387,16 @@ function CreateDetailsForColumnTitles( getNumberOfColumns, columnTitles ){
             currentTitleElement.style.placeSelf = "end start";
             currentTitleElement.style.marginLeft = "10px";
         }
+        else if (l === fourthColumn){
+            currentTitleElement.style.textAlign = "start";
+            currentTitleElement.style.placeSelf = "end center";
+            currentTitleElement.style.marginRight = "40px";
+        }
+        else if (l === fifthColumn){
+            currentTitleElement.style.textAlign = "start";
+            currentTitleElement.style.placeSelf = "end center";
+            currentTitleElement.style.marginRight = "110px";
+        }
         // Positioning title
         else{
             currentTitleElement.style.textAlign = "center";
@@ -402,8 +412,8 @@ function CreateDetailsForColumnTitles( getNumberOfColumns, columnTitles ){
 //#endregion
 
 //#region Creating name and time and canvas details for grid
-
-function CreateNameAndTime(){
+/* MIGHT NEED TO REMOVE */
+async function CreateNameAndTime(){
 
     for (let i = 1; i <= arrayOfStationsOnPath.length; i++) {
 
@@ -437,6 +447,56 @@ function CreateNameAndTime(){
         theTime.style.fontSize = "14.75px";
         theTime.style.marginLeft = "15px";
         getGrid.appendChild(theTime);
+
+        // Fetching 2 pieces of information for current station
+        let fetchStationInformation = await fetch( "http://10.101.0.12:8080/stations/" 
+            + arrayOfStationsOnPath[i - 1].StationId);
+        let responseFromInformation = await fetchStationInformation.json();
+
+         // Creating details to display city
+         let theInformation2 = document.createElement("div");
+         theInformation2.innerHTML = "City: " + responseFromInformation[0].City;
+         theInformation2.style.gridRow = (i + 1);
+         theInformation2.style.gridColumn = 4;
+         theInformation2.style.fontSize = "14.75px";
+         theInformation2.style.marginLeft = "50px";
+         getGrid.appendChild(theInformation2);
+
+        // Creating details to display street name
+        let theInformation1 = document.createElement("div");
+        theInformation1.innerHTML = "Street Name: " + responseFromInformation[0].StreetName;
+        theInformation1.style.gridRow = (i + 1);
+        theInformation1.style.gridColumn = 4;
+        theInformation1.style.fontSize = "14.75px";
+        theInformation1.style.marginLeft = "50px";
+        theInformation1.style.marginTop = "32px";
+        getGrid.appendChild(theInformation1);
+
+        // Fetching (if any) notifications for current station
+        let fetchNotifications = await fetch( "http://10.101.0.12:8080/notifications/"
+            + arrayOfStationsOnPath[i - 1].StationId );
+        let responseFromNotifications = await fetchNotifications.json();
+
+        if (responseFromNotifications.length > 0){
+            console.log(responseFromNotifications);
+
+            let theNotificationsName = document.createElement("div");
+            theNotificationsName.innerHTML = "Name: " + responseFromNotifications[0].Name;
+            theNotificationsName.style.gridRow = (i + 1);
+            theNotificationsName.style.gridColumn = 5;
+            theNotificationsName.style.fontSize = "14.75px";
+            theNotificationsName.style.marginLeft = "20px";
+            getGrid.appendChild(theNotificationsName);
+
+            let theNotificationsDesc = document.createElement("div");
+            theNotificationsDesc.innerHTML = "Description: " + responseFromNotifications[0].Description;
+            theNotificationsDesc.style.gridRow = (i + 1);
+            theNotificationsDesc.style.gridColumn = 5;
+            theNotificationsDesc.style.fontSize = "14.75px";
+            theNotificationsDesc.style.marginLeft = "20px";
+            theNotificationsDesc.style.marginTop = "32px";
+            getGrid.appendChild(theNotificationsDesc);
+        }
 
         if(i > 1){
             // If the segment id is different to the previous, set to true (changing segments)
