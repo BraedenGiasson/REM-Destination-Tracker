@@ -588,6 +588,23 @@ async function CreateNameAndTime(){
             CreateLine( i, isDifferent );
         }
         CreateRectangle( i, isDifferent ); // creating rectangle
+        if (i === arrayOfStationsOnPath.length){
+            
+            let getPElement = document.querySelector('p');
+            getPElement.style.display = "block";
+
+            if(isDifferent){
+                getPElement.innerHTML = "(Black is segment " + arrayOfStationsOnPath[0].segmentId
+                    + ", Blue is segment " + arrayOfStationsOnPath[arrayOfStationsOnPath.length - 1].segmentId + ")";
+            }
+            else{
+                getPElement.innerHTML = "(Black is segment " + arrayOfStationsOnPath[0].segmentId + ")";
+            }
+
+            let fetchWeather = await fetch("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Montreal?unitGroup=metric&key=63LJ2AXSUK5V5VEBYN9JRZY6Y&contentType=json");
+            let responseFromWeather = await fetchWeather.json();
+            console.log(responseFromWeather);
+        }
     }
 }
 

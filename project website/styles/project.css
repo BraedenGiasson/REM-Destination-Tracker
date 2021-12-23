@@ -79,3 +79,7 @@ select:hover, option:hover, input[type="date"]:hover, input[type="time"]:hover{
     margin-top: 20px;
      justify-content: center;
 }
+P{
+    display: none;
+    margin-left: 350px;
+}
