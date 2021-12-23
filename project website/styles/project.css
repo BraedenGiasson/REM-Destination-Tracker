@@ -15,10 +15,10 @@ header{
     display: flex;
     justify-content: space-between;
 }
-
-#login:hover{
-    cursor: pointer;
+#project-name{
+    margin-bottom: 1rem;
 }
+
 input{
     text-align: center;
 }
@@ -44,7 +44,7 @@ select{
 label{
     display: flex;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 3rem;
     font-weight: bolder;
     font-size: large;
 }

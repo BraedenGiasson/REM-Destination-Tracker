@@ -20,7 +20,7 @@ async function GettingAllStations(){
             getAllStations[m].appendChild(createOption);
         }
     }
-    
+
     console.log(responseFromStationsFetch); // for my own use
 }
 
@@ -55,8 +55,8 @@ async function GetStationsPath(){
 let totalDistance = 0; /* CAN DELETE */
 
 // Building array with all stations on path
-let array = [];
-array.length = getNumStationsOnPath;
+let arrayOfStationsOnPath = [];
+arrayOfStationsOnPath.length = getNumStationsOnPath;
 
 //#region Getting distance between start and end station (in km)
 
@@ -276,7 +276,7 @@ async function GetDistanceEachStation( stationsOnPath ){
             // Start at closest time
             let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
                 stationsOnPath[i].Name, newFormatedTime);
-            array.push(newStationClass);
+            arrayOfStationsOnPath.push(newStationClass);
         }
         // Add times to previous times
         else if(i >= 1){
@@ -297,7 +297,7 @@ async function GetDistanceEachStation( stationsOnPath ){
             let getTimeTaken = (responseFromFetch/averageSpeed) * 60;
 
             // setting new added minutes from time between stations
-            timeDate = new Date(getDateHTML.value + " " + array[i - 1].time)
+            timeDate = new Date(getDateHTML.value + " " + arrayOfStationsOnPath[i - 1].time)
             timeDate.setMinutes( timeDate.getMinutes() + Math.ceil(getTimeTaken) )
             
             // Formating time to just show hours and minutes
@@ -309,7 +309,7 @@ async function GetDistanceEachStation( stationsOnPath ){
             if (getAllStationsOnPath[i].StationId !== getAllStationsOnPath[i - 1].StationId){
                 let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
                     stationsOnPath[i].Name, newFormatedTime);
-                array.push(newStationClass);
+                arrayOfStationsOnPath.push(newStationClass);
             }
 
             // for my own use
@@ -331,7 +331,7 @@ async function GetDistanceEachStation( stationsOnPath ){
     // Logs for my own use
     console.log("final counter " + counter);
     console.log("final time " + timee);
-    console.log(array);
+    console.log(arrayOfStationsOnPath);
     console.log(getAllStationsOnPath);
 
     CreateGrid();
@@ -347,7 +347,7 @@ let getGrid = document.querySelector('.grid-container');
 function CreateGrid(){
 
     // Setting how many rows in grid (number of stations on path)
-    getGrid.style.gridTemplateRows = "repeat(" + (array.length + 1) + ", 100px )";
+    getGrid.style.gridTemplateRows = "repeat(" + (arrayOfStationsOnPath.length + 1) + ", 100px )";
     // Getting number of columns for grid
     let getNumberOfColumns = window.getComputedStyle(getGrid).getPropertyValue("grid-template-columns").split(" ").length;
     let columnTitles = [ "Station Name", "Path", "Arrival Time", "Information", "Notifications" ];
@@ -405,22 +405,22 @@ function CreateDetailsForColumnTitles( getNumberOfColumns, columnTitles ){
 
 function CreateNameAndTime(){
 
-    for (let i = 1; i <= array.length; i++) {
+    for (let i = 1; i <= arrayOfStationsOnPath.length; i++) {
 
         // Creating details to display station name
         let theName = document.createElement("div");
 
         // If start station
         if(i === 1){
-            theName.innerHTML = "Start at " + array[i - 1].name;
+            theName.innerHTML = "Start at " + arrayOfStationsOnPath[i - 1].name;
         }
         // If end station
-        else if (i === (array.length)){
-            theName.innerHTML = "Arrive at " + array[i - 1].name;
+        else if (i === (arrayOfStationsOnPath.length)){
+            theName.innerHTML = "Arrive at " + arrayOfStationsOnPath[i - 1].name;
         }
         // If normal station on path
         else{
-            theName.innerHTML = array[i - 1].name;
+            theName.innerHTML = arrayOfStationsOnPath[i - 1].name;
         }
         
         theName.style.gridRow = (i + 1);
@@ -431,7 +431,7 @@ function CreateNameAndTime(){
 
         // Creating details to display time
         let theTime = document.createElement("div");
-        theTime.innerHTML = array[i - 1].time;
+        theTime.innerHTML = arrayOfStationsOnPath[i - 1].time;
         theTime.style.gridRow = (i + 1);
         theTime.style.gridColumn = 3;
         theTime.style.fontSize = "14.75px";
@@ -440,14 +440,14 @@ function CreateNameAndTime(){
 
         if(i > 1){
             // If the segment id is different to the previous, set to true (changing segments)
-            if (array[i - 1].SegmentId !== array[i - 2].SegmentId){
+            if (arrayOfStationsOnPath[i - 1].SegmentId !== arrayOfStationsOnPath[i - 2].SegmentId){
                 isDifferent = true;
             }
         }
 
         // If it's the last index, don't create extra line,
         // else, create the line between stations
-        if (i !== (array.length)){
+        if (i !== (arrayOfStationsOnPath.length)){
             CreateLine( i, isDifferent );
         }
         CreateRectangle( i, isDifferent );
