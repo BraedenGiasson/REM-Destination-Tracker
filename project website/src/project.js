@@ -442,60 +442,42 @@ async function CreateNameAndTime(){
         // Creating details to display time
         let theTime = document.createElement("div");
         theTime.innerHTML = arrayOfStationsOnPath[i - 1].time;
-        theTime.style.gridRow = (i + 1);
-        theTime.style.gridColumn = 3;
-        theTime.style.fontSize = "14.75px";
-        theTime.style.marginLeft = "15px";
-        getGrid.appendChild(theTime);
+        CreateStylingForInformation( theTime, i, 3, "15px", false, "32px" );
 
         // Fetching 2 pieces of information for current station
         let fetchStationInformation = await fetch( "http://10.101.0.12:8080/stations/" 
             + arrayOfStationsOnPath[i - 1].StationId);
         let responseFromInformation = await fetchStationInformation.json();
 
-         // Creating details to display city
-         let theInformation2 = document.createElement("div");
-         theInformation2.innerHTML = "City: " + responseFromInformation[0].City;
-         theInformation2.style.gridRow = (i + 1);
-         theInformation2.style.gridColumn = 4;
-         theInformation2.style.fontSize = "14.75px";
-         theInformation2.style.marginLeft = "50px";
-         getGrid.appendChild(theInformation2);
+        // Creating details to display city
+        let theInformation2 = document.createElement("div");
+        theInformation2.innerHTML = "City: " + responseFromInformation[0].City;
+        CreateStylingForInformation( theInformation2, i, 4, "50px", false, "32px" );
 
         // Creating details to display street name
         let theInformation1 = document.createElement("div");
         theInformation1.innerHTML = "Street Name: " + responseFromInformation[0].StreetName;
-        theInformation1.style.gridRow = (i + 1);
-        theInformation1.style.gridColumn = 4;
-        theInformation1.style.fontSize = "14.75px";
-        theInformation1.style.marginLeft = "50px";
-        theInformation1.style.marginTop = "32px";
-        getGrid.appendChild(theInformation1);
+        CreateStylingForInformation( theInformation1, i, 4, "50px", true, "32px" );
 
         // Fetching (if any) notifications for current station
         let fetchNotifications = await fetch( "http://10.101.0.12:8080/notifications/"
             + arrayOfStationsOnPath[i - 1].StationId );
         let responseFromNotifications = await fetchNotifications.json();
 
+        // If there are any notifications, display them
         if (responseFromNotifications.length > 0){
-            console.log(responseFromNotifications);
-
+            
+            // Displaying the name of the notification
             let theNotificationsName = document.createElement("div");
             theNotificationsName.innerHTML = "Name: " + responseFromNotifications[0].Name;
-            theNotificationsName.style.gridRow = (i + 1);
-            theNotificationsName.style.gridColumn = 5;
-            theNotificationsName.style.fontSize = "14.75px";
-            theNotificationsName.style.marginLeft = "20px";
-            getGrid.appendChild(theNotificationsName);
+            CreateStylingForInformation( theNotificationsName, i, 5, "20px", false, "32px" );
 
+            // Displaying the description of the notification
             let theNotificationsDesc = document.createElement("div");
             theNotificationsDesc.innerHTML = "Description: " + responseFromNotifications[0].Description;
-            theNotificationsDesc.style.gridRow = (i + 1);
-            theNotificationsDesc.style.gridColumn = 5;
-            theNotificationsDesc.style.fontSize = "14.75px";
-            theNotificationsDesc.style.marginLeft = "20px";
-            theNotificationsDesc.style.marginTop = "32px";
-            getGrid.appendChild(theNotificationsDesc);
+            CreateStylingForInformation( theNotificationsDesc, i, 5, "20px", true, "32px" );
+        
+            console.log(responseFromNotifications); // my use
         }
 
         if(i > 1){
@@ -510,8 +492,27 @@ async function CreateNameAndTime(){
         if (i !== (arrayOfStationsOnPath.length)){
             CreateLine( i, isDifferent );
         }
-        CreateRectangle( i, isDifferent );
+        CreateRectangle( i, isDifferent ); // creating rectangle
     }
+}
+
+//#endregion
+
+//#region Creating styling elements for current element to be displayed
+
+function CreateStylingForInformation( currentElement, i, columnNumber, leftMarginAmount, ifMarginTop, marginTopAmount ){
+
+    currentElement.style.gridRow = (i + 1);
+    currentElement.style.gridColumn = columnNumber;
+    currentElement.style.fontSize = "14.75px";
+    currentElement.style.marginLeft = leftMarginAmount;
+
+    // If need a margin top, set the margin top
+    if (ifMarginTop) {
+        currentElement.style.marginTop = marginTopAmount;
+    }
+
+    getGrid.appendChild(currentElement);
 }
 
 //#endregion
@@ -529,7 +530,7 @@ function CreateLine( i, isDifferent ){
     canvas2d.lineTo(0, 300);
     canvas2d.stroke();
     
-    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "40%" );
+    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "64%" );
 }
 
 //#endregion
@@ -541,9 +542,9 @@ function CreateRectangle( i, isDifferent ){
     let createCanvas = document.createElement('canvas');
     SettingCanvasWidthHeight( createCanvas );
     let canvas2d = createCanvas.getContext('2d');
-    canvas2d.fillRect(0,0,7,7);
+    canvas2d.fillRect(0,0,7.5,7.5);
 
-    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "37%" )
+    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "60%" )
 }
 
 //#endregion
