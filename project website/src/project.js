@@ -32,6 +32,7 @@ let getEndStation = document.querySelector('#end');
 let getDateHTML = document.querySelector('input[type="date"]');
 let getTimeHTML = document.querySelector('input[type="time"]');
 
+
 let getNumStationsOnPath = 0;
 let getAllStationsOnPath = null;
 
@@ -52,7 +53,7 @@ async function GetStationsPath(){
 
 //#endregion
 
-let totalDistance = 0; /* CAN DELETE */
+let totalDistance = 0; 
 
 // Building array with all stations on path
 let arrayOfStationsOnPath = [];
@@ -65,15 +66,15 @@ async function GetDistanceBetweenStations(){
     let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + getStartStation.value 
         + "/" + getEndStation.value );
     let responseFromDistanceFetch = await fetchDistance.json();
-    totalDistance = responseFromDistanceFetch; /* CAN DELETE */
+    totalDistance = responseFromDistanceFetch; 
 
     // for my own use
-    console.log("Distance between beginning stations: " + responseFromDistanceFetch); /* CAN DELETE */
+    console.log("Distance between beginning stations: " + responseFromDistanceFetch); 
 }
 
 //#endregion
 
-let timee = 0; /* CAN DELETE */
+let timee = 0; 
 
 let getStartTripButton = document.querySelector('#submit-btn'); // getting start trip button 
 
@@ -108,8 +109,8 @@ getStartTripButton.addEventListener('click', async (event) => {
     }
 
     console.clear(); // clearing console
-    console.log(getTimeHTML.value); /* CAN DELETE */
-    timee = 0; /* CAN DELETE */
+    console.log(getTimeHTML.value); 
+    timee = 0; 
 
     ExecuteMethods(); // If all checks out, continue with path
     event.preventDefault();
@@ -118,6 +119,8 @@ getStartTripButton.addEventListener('click', async (event) => {
 let startStationSchedule = null;
 let getHoursFromStation = []; 
 let getClosestTime = null;
+let getNewHoursFromStation = [];
+let newClosestTime = null;
 
 //#region Calling all methods needed
 
@@ -154,9 +157,9 @@ async function GetStartStationSchedule(){
     let hrs = getTimeHTML.value.split(":")[0]; // getting hours from input time string
     let mins = getTimeHTML.value.split(":")[1]; // getting minutes from input time string
 
-    GetMatchingHours( hrs );
+    GetMatchingHours( hrs, startStationSchedule, getHoursFromStation );
 
-    let indexOfStartingTime = GetClosestTimeToInputTime( mins );
+    let indexOfStartingTime = GetClosestTimeToInputTime( mins, getHoursFromStation );
     
     getClosestTime = getHoursFromStation[indexOfStartingTime]; // setting closest time
     
@@ -176,49 +179,83 @@ async function GetStartStationSchedule(){
 
 //#region Get macthing times from temp date and input time
 
-function GetMatchingHours( hrs ){
+function GetMatchingHours( theHours, theSchedule, arrayToAddTo ){
 
+    console.log(theHours);
     // Get the times where the hours match the input time hours
-    for (let r = 0; r < startStationSchedule.length; r++) {
+    for (let r = 0; r < theSchedule.length; r++) {
 
         // Splitting the time string to get time after char T
-        let getRidOfFront = startStationSchedule[r].Time.toString().split("T");
+        let getRidOfFront = theSchedule[r].Time.toString().split("T");
+        console.log(getRidOfFront);
         // Splitting the time string to get time before char .
         let getRidOfBack = getRidOfFront[1].split(".");
+        console.log(getRidOfBack);
 
         // Temp date to get matching time hours
         let dummyDate = new Date(getRidOfFront[0] + " " + getRidOfBack[0]);
         
         // If hours match from temp date and hours from input, push to array
-        if (dummyDate.getHours() === parseInt(hrs)){            
-            getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
+        if (dummyDate.getHours() === parseInt(theHours)){            
+            arrayToAddTo.push(getRidOfFront[0] + " " + getRidOfBack[0]);
         }
         // Getting the first time for the next hour (in case input hour is that last for that hour)  
-        else if (dummyDate.getHours() === (parseInt(hrs) + 1)){
-            getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
+        else if (dummyDate.getHours() === (parseInt(theHours) + 1)){
+            arrayToAddTo.push(getRidOfFront[0] + " " + getRidOfBack[0]);
+            console.log(arrayToAddTo);
             return;
         }
 
         // for my own use
         console.log(getRidOfFront);
         console.log(getRidOfBack);
-        console.log(dummyDate.getHours(), (parseInt(hrs) + 1));
-        console.log(dummyDate.toLocaleTimeString("en-GB"), dummyDate, parseInt(hrs), startStationSchedule[r].Time);
+        console.log(dummyDate.getHours(), (parseInt(theHours) + 1));
+        console.log(dummyDate.toLocaleTimeString("en-GB"), dummyDate, parseInt(theHours), theSchedule[r].Time);
     }
 }
 
-//#region Getting closest time to input time
+// function GetMatchingHours( hrs ){
 
-function GetClosestTimeToInputTime( mins ){
+//     // Get the times where the hours match the input time hours
+//     for (let r = 0; r < startStationSchedule.length; r++) {
+
+//         // Splitting the time string to get time after char T
+//         let getRidOfFront = startStationSchedule[r].Time.toString().split("T");
+//         // Splitting the time string to get time before char .
+//         let getRidOfBack = getRidOfFront[1].split(".");
+
+//         // Temp date to get matching time hours
+//         let dummyDate = new Date(getRidOfFront[0] + " " + getRidOfBack[0]);
+        
+//         // If hours match from temp date and hours from input, push to array
+//         if (dummyDate.getHours() === parseInt(hrs)){            
+//             getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
+//         }
+//         // Getting the first time for the next hour (in case input hour is that last for that hour)  
+//         else if (dummyDate.getHours() === (parseInt(hrs) + 1)){
+//             getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
+//             return;
+//         }
+
+//         // for my own use
+//         console.log(getRidOfFront);
+//         console.log(getRidOfBack);
+//         console.log(dummyDate.getHours(), (parseInt(hrs) + 1));
+//         console.log(dummyDate.toLocaleTimeString("en-GB"), dummyDate, parseInt(hrs), startStationSchedule[r].Time);
+//     }
+// }
+
+//#region Getting closest time to input time
+function GetClosestTimeToInputTime( mins, arrayToAddTo ){
 
     let indexOfStartingTime = -1;
     let currentClosest = null;
 
     // Getting closest time to input time
-    for (let t = 0; t < getHoursFromStation.length; t++) {
+    for (let t = 0; t < arrayToAddTo.length; t++) {
 
         // Creating date from current station on path
-        let newDateInArray = new Date(getHoursFromStation[t]);
+        let newDateInArray = new Date(arrayToAddTo[t]);
 
         // Intializing currentClosest to large number
         if (t === 0){
@@ -235,7 +272,7 @@ function GetClosestTimeToInputTime( mins ){
 
             // If difference is negative, return index (meaning next closest time)
             // OR If the time is in the next hour, return index
-            if(dateDiff < 0 || t === (getHoursFromStation.length - 1)){
+            if(dateDiff < 0 || t === (arrayToAddTo.length - 1)){
                 return t;
             }
             // If closest time is greater than the difference, set current closest to difference
@@ -251,6 +288,49 @@ function GetClosestTimeToInputTime( mins ){
     }
     return indexOfStartingTime;
 }
+
+// function GetClosestTimeToInputTime( mins, arrayToAddTo ){
+
+//     let indexOfStartingTime = -1;
+//     let currentClosest = null;
+
+//     // Getting closest time to input time
+//     for (let t = 0; t < getHoursFromStation.length; t++) {
+
+//         // Creating date from current station on path
+//         let newDateInArray = new Date(getHoursFromStation[t]);
+
+//         // Intializing currentClosest to large number
+//         if (t === 0){
+//             currentClosest = 100;
+//         }
+
+//         // If the times match (time to leave now), return the current index
+//         if (parseInt(mins) === newDateInArray.getMinutes()){
+//             return t;
+//         }
+//         else{
+//             // Getting the difference in minutes from input time and current temp date
+//             let dateDiff = (parseInt(mins) - newDateInArray.getMinutes());
+
+//             // If difference is negative, return index (meaning next closest time)
+//             // OR If the time is in the next hour, return index
+//             if(dateDiff < 0 || t === (getHoursFromStation.length - 1)){
+//                 return t;
+//             }
+//             // If closest time is greater than the difference, set current closest to difference
+//             if (currentClosest > dateDiff){
+//                 currentClosest = dateDiff;
+//                 indexOfStartingTime = t;
+//             }
+//         }
+
+//         // for my own use
+//         console.log(newDateInArray, getTimeHTML.value);
+//         console.log(parseInt(mins), newDateInArray.getMinutes()); 
+//     }
+//     return indexOfStartingTime;
+// }
 
 //#endregion
 
@@ -304,12 +384,53 @@ async function GetDistanceEachStation( stationsOnPath ){
             let formatTime = timeDate.toLocaleTimeString("en-GB");
             let splittingByColon = formatTime.toString().split(":");
             let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
-
+            console.log(getAllStationsOnPath);
             // If there's not a duplicate (back-to-back) station, add to array
             if (getAllStationsOnPath[i].StationId !== getAllStationsOnPath[i - 1].StationId){
+
+                
+
                 let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
                     stationsOnPath[i].Name, newFormatedTime);
                 arrayOfStationsOnPath.push(newStationClass);
+            }
+            else{
+
+                console.log("here");
+                console.log(arrayOfStationsOnPath);
+
+                if (getAllStationsOnPath[i].SegmentId !== getAllStationsOnPath[i- 1].SegmentId){
+                    console.log(getAllStationsOnPath[i + 1].SegmentId);
+
+                    let getNextStationSegmentId = getAllStationsOnPath[i + 1].SegmentId;
+                    let segmentIdToSearchFor = getNextStationSegmentId;
+
+                    // Getting schedule from start station
+                    let fetchNewSchedule = await fetch( "http://10.101.0.12:8080/schedule/" + stationsOnPath[i].Name );
+                    let responseFromNewScheduleFetch = await fetchNewSchedule.json();
+
+                    let getScheduleWithOnlyRightSegmentId = responseFromNewScheduleFetch.filter(element => element.SegmentId === segmentIdToSearchFor);
+
+                    let getPreviousTime = arrayOfStationsOnPath[i - 1].time + ":00"; 
+                    console.log(getPreviousTime);
+                    console.log(getScheduleWithOnlyRightSegmentId);
+                    let staticTime = "1970-01-01";
+
+                    let hrsFromPreviousTime = getPreviousTime.split(":")[0];
+                    let minsFromPreviousTime = getPreviousTime.split(":")[1];
+
+                    GetMatchingHours( hrsFromPreviousTime, getScheduleWithOnlyRightSegmentId, getNewHoursFromStation );
+
+                    let indexNewClosestTime = GetClosestTimeToInputTime( minsFromPreviousTime, getNewHoursFromStation );
+                    console.log(indexNewClosestTime);
+                    console.log(getNewHoursFromStation);
+
+                    newClosestTime = getNewHoursFromStation[indexNewClosestTime]; // setting closest time
+
+                    console.log(newClosestTime);
+                    
+                    console.log(responseFromNewScheduleFetch);
+                }
             }
 
             // for my own use
@@ -486,6 +607,11 @@ async function CreateNameAndTime(){
                 isDifferent = true;
             }
         }
+
+        //let fetchWeather = await fetch("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Montreal?unitGroup=metric&key=63LJ2AXSUK5V5VEBYN9JRZY6Y&contentType=json");
+        // let fetchWeather = await fetch("http://api.weatherapi.com/v1/current.json?key=aab951d047cd455d85d164045212312 &q=London&aqi=yes");
+        //let responseF = await fetchWeather.json();
+        //console.log(responseF);
 
         // If it's the last index, don't create extra line,
         // else, create the line between stations
