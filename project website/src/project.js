@@ -24,6 +24,8 @@ GettingAllStations();
 
 let getStartStation = document.querySelector('#start');
 let getEndStation = document.querySelector('#end');
+let getDateHTML = document.querySelector('input[type="date"]');
+let getTimeHTML = document.querySelector('input[type="time"]');
 
 let getNumStationsOnPath = 0;
 let getAllStationsOnPath = null;
@@ -43,7 +45,7 @@ async function GetStationsPath(){
     getAllStationsOnPath = responseFromFetch;
 
     console.log(responseFromFetch);
-    GetDistanceEachStation( responseFromFetch );
+    // GetDistanceEachStation( responseFromFetch );
 }
 let totalDistance = 0;
 let array = [];
@@ -63,7 +65,14 @@ let timee = 0;
 let getTimeFromInput = null;
 
 let getStartTripButton = document.querySelector('#submit-btn');
-getStartTripButton.addEventListener('click', (event) => {
+getStartTripButton.addEventListener('click', async (event) => {
+
+    if (getStartStation.value === "" || getEndStation.value === ""
+        || getDateHTML.value === "" || getTimeHTML.value === ""){
+            alert("Error: some fields are not filled in.");
+            event.preventDefault();
+            return;
+        }
 
     if (getStartStation.value === getEndStation.value){
         alert("Start station and End station cannot be the same!");
@@ -75,15 +84,25 @@ getStartTripButton.addEventListener('click', (event) => {
     console.clear();
     console.log(getTimeFromInput.value);
     timee = 0;
-    GetStationsPath();
-    GetDistanceBetweenStations();
-    GetStartStationSchedule();
+    // let nowGettingAllStationsOnPath = await GetStationsPath();
+    // let nowGettingDistanceBetweenStations = await GetDistanceBetweenStations();
+    // let nowGettingStartStationSchedule = await GetStartStationSchedule();
+    // let nowGettingDistanceEachStation = await GetDistanceEachStation( getAllStationsOnPath );
+    ExecuteMethods();
     event.preventDefault();
 })
 
 let startStationSchedule = null;
 let getHoursFromStation = []; 
 let getClosestTime = null;
+
+async function ExecuteMethods(){
+
+    let nowGettingAllStationsOnPath = await GetStationsPath();
+    let nowGettingDistanceBetweenStations = await GetDistanceBetweenStations();
+    let nowGettingStartStationSchedule = await GetStartStationSchedule();
+    let nowGettingDistanceEachStation = await GetDistanceEachStation( getAllStationsOnPath );
+}
 
 async function GetStartStationSchedule(){
 
@@ -208,8 +227,8 @@ async function GetStartStationSchedule(){
             }
         }
     }
-    console.log(getHoursFromStation[indexOfStartingTime]);
     getClosestTime = getHoursFromStation[indexOfStartingTime];
+    console.log(getClosestTime);
 }
 
 async function GetDistanceEachStation( stationsOnPath ){
@@ -217,9 +236,11 @@ async function GetDistanceEachStation( stationsOnPath ){
     console.log(stationsOnPath);
     for (let i = 0; i < stationsOnPath.length; i++) {
         
+        let timeDate = new Date(getClosestTime);
+        
         if (i === 0){
             let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
-                stationsOnPath[i].Name, 0);
+                stationsOnPath[i].Name, timeDate.toLocaleTimeString("en-GB"));
             array.push(newStationClass);
         }
         /*else if (i == 1){
@@ -285,6 +306,11 @@ async function GetDistanceEachStation( stationsOnPath ){
             console.log("Average minute speed: " + getSpeedInMinutesForHour);
 
             let getTimeTaken = (responseFromFetch/newResult) * 60;
+
+            timeDate = new Date(getDateHTML.value + " " + array[i - 1].time)
+            timeDate.setMinutes( timeDate.getMinutes() + Math.ceil(getTimeTaken) )
+            let formatTime = timeDate.toLocaleTimeString("en-GB");
+            console.log(formatTime);
             
             console.log("Time between stations: " + getTimeTaken);
 
@@ -294,7 +320,7 @@ async function GetDistanceEachStation( stationsOnPath ){
 
             if (getAllStationsOnPath[i].StationId !== getAllStationsOnPath[i - 1].StationId){
                 let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
-                    stationsOnPath[i].Name, getTimeTaken);
+                    stationsOnPath[i].Name, formatTime);
                 array.push(newStationClass);
             }
         }
@@ -361,7 +387,7 @@ function CreateGrid(){
             theName.innerHTML = "Start at " + array[i - 1].name;
         }
         else if (i === (array.length)){
-            theName.innerHTML = "End at " + array[i - 1].name;
+            theName.innerHTML = "Arrive at " + array[i - 1].name;
         }
         else{
             theName.innerHTML = array[i - 1].name;
@@ -459,7 +485,7 @@ class Station
     constructor ( stationId, segmentId, name, time )
     {
         this.name = name;
-        this.time = time.toFixed(2);
+        this.time = time;
         this.stationId = stationId;
         this.segmentId = segmentId;
     }
