@@ -72,7 +72,15 @@ getStartTripButton.addEventListener('click', async (event) => {
             alert("Error: some fields are not filled in.");
             event.preventDefault();
             return;
-        }
+    }
+
+    let testDate = new Date( getDateHTML.value + " " + getTimeHTML.value );
+    
+    if ( testDate.getHours() >= 2 || (testDate.getHours() <= 4 && testDate.getMinutes() <= 59) ){
+        alert("Error: Time must be in the ranges of 02:00 and 05:00.");
+        event.preventDefault();
+        return;
+    }
 
     if (getStartStation.value === getEndStation.value){
         alert("Start station and End station cannot be the same!");
@@ -82,7 +90,7 @@ getStartTripButton.addEventListener('click', async (event) => {
     getTimeFromInput = document.querySelector('input[type="time"]');
 
     console.clear();
-    console.log(getTimeFromInput.value);
+    console.log(getTimeHTML.value);
     timee = 0;
     // let nowGettingAllStationsOnPath = await GetStationsPath();
     // let nowGettingDistanceBetweenStations = await GetDistanceBetweenStations();
@@ -130,6 +138,8 @@ async function GetStartStationSchedule(){
     let findSegmentIdIndex = getAllStationsOnPath.findIndex(element => element.Name === getStartStation.value);
     let segmentIdFromStartStation = getAllStationsOnPath[findSegmentIdIndex].SegmentId;
     console.log(segmentIdFromStartStation);
+
+  
 
     startStationSchedule = responseFromFetch.filter(element => element.SegmentId === segmentIdFromStartStation);
     console.log(startStationSchedule);
@@ -239,8 +249,11 @@ async function GetDistanceEachStation( stationsOnPath ){
         let timeDate = new Date(getClosestTime);
         
         if (i === 0){
+            let splittingByColon = timeDate.toLocaleTimeString("en-GB").toString().split(":");
+            let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
+
             let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
-                stationsOnPath[i].Name, timeDate.toLocaleTimeString("en-GB"));
+                stationsOnPath[i].Name, newFormatedTime);
             array.push(newStationClass);
         }
         /*else if (i == 1){
@@ -307,9 +320,11 @@ async function GetDistanceEachStation( stationsOnPath ){
 
             let getTimeTaken = (responseFromFetch/newResult) * 60;
 
-            timeDate = new Date(getDateHTML.value + " " + array[i - 1].time)
+            timeDate = new Date(getDateHTML.value + " " + array[i - 1].Time)
             timeDate.setMinutes( timeDate.getMinutes() + Math.ceil(getTimeTaken) )
             let formatTime = timeDate.toLocaleTimeString("en-GB");
+            let splittingByColon = formatTime.toString().split(":");
+            let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
             console.log(formatTime);
             
             console.log("Time between stations: " + getTimeTaken);
@@ -320,7 +335,7 @@ async function GetDistanceEachStation( stationsOnPath ){
 
             if (getAllStationsOnPath[i].StationId !== getAllStationsOnPath[i - 1].StationId){
                 let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
-                    stationsOnPath[i].Name, formatTime);
+                    stationsOnPath[i].Name, newFormatedTime);
                 array.push(newStationClass);
             }
         }
@@ -365,7 +380,7 @@ function CreateGrid(){
     let getNumberOfColumns = window.getComputedStyle(getGrid).getPropertyValue("grid-template-columns").split(" ").length;
     
     let columnTitles = [ "Station Name", "Itinerary", "Arrival Time", "Information", "Notifications" ];
-    let columnTitlesHeight = [ "30%", "100%", "62%", "63%", "60%" ];
+    //let columnTitlesHeight = [ "30%", "100%", "62%", "63%", "60%" ];
 
     for (let l = 0; l < getNumberOfColumns; l++) {
         let currentTitleElement = document.createElement('h5');
@@ -375,7 +390,6 @@ function CreateGrid(){
         currentTitleElement.style.borderBottom = "3px solid black";
         currentTitleElement.style.gridColumn = (l + 1);
         currentTitleElement.style.textAlign = "center";
-        currentTitleElement.style.marginTop = columnTitlesHeight[l];
         currentTitleElement.style.textDecoration = "underline";
         getGrid.appendChild(currentTitleElement);
     }

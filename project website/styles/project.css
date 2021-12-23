@@ -23,19 +23,19 @@ input{
     text-align: center;
 }
 input[type="date"]{
-    margin-left: 35%;
-    margin-top: 20px;
+    display: block;
+    margin: auto;
 }
 input[type="time"]{
-    margin-left: 38%;
-    margin-top: 20px;
+    display: block;
+    margin: auto;
     width: 110px;
 }
 select{
     padding: 3.5px 0px;
 }
 
-#start-station, #end-station{
+#start-station, #end-station, input[type="date"], input[type="time"]{
     display: flex;
     justify-content: center;
     margin-top: 1rem;
