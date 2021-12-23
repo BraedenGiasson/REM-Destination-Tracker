@@ -76,7 +76,7 @@ getStartTripButton.addEventListener('click', async (event) => {
 
     let testDate = new Date( getDateHTML.value + " " + getTimeHTML.value );
     
-    if ( testDate.getHours() >= 2 || (testDate.getHours() <= 4 && testDate.getMinutes() <= 59) ){
+    if ( testDate.getHours() >= 2 && testDate.getHours() <= 4 ){
         alert("Error: Time must be in the ranges of 02:00 and 05:00.");
         event.preventDefault();
         return;
@@ -145,29 +145,6 @@ async function GetStartStationSchedule(){
     console.log(startStationSchedule);
 
     console.log(responseFromFetch);
-    console.log(responseFromFetch[4].Time);
-    let newDate = new Date(responseFromFetch[4].Time);
-    let neww = newDate.toLocaleTimeString("en-GB");
-    let newDate1 = new Date(responseFromFetch[8].Time);
-    let neww1 = newDate1.toLocaleTimeString("en-GB");
-    console.log(newDate);
-    console.log(neww);
-    console.log(neww1);
-
-    let dateDiff = Math.abs(neww - neww1);
-    console.log(dateDiff);
-    let today = new Date();
-    console.log(today.getUTCDate());
-    console.log(newDate.getMinutes());
-
-    let dummy = await fetch( "http://10.101.0.12:8080/stations/" + 1 );
-    let dum = await dummy.json();
-    console.log(dum);
-
-    let u = await fetch( "http://10.101.0.12:8080/notifications/" + 1 );
-    let ui = await u.json();
-    console.log(ui);
-
 
     let indexOfStartingTime = null;
     let currentClosest = null;
@@ -256,43 +233,6 @@ async function GetDistanceEachStation( stationsOnPath ){
                 stationsOnPath[i].Name, newFormatedTime);
             array.push(newStationClass);
         }
-        /*else if (i == 1){
-            let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i].Name 
-            + "/" + stationsOnPath[i - 1].Name );
-            let responseFromFetch = await fetchDistance.json();
-
-            console.log("Distance " + stationsOnPath[i].Name + " and " +
-            stationsOnPath[i - 1].Name + ": " + responseFromFetch);
-
-            counter += responseFromFetch;
-
-            console.log("counter " + counter);
-
-            console.log("distance left: " + (totalDistance - counter));
-
-            let fetchSpeed = await fetch( "http://10.101.0.12:8080/averageTrainSpeed" );
-            let newresponse = await fetchSpeed.json();
-
-            let newResult = newresponse[0].AverageSpeed;
-            console.log("speed " + newResult);
-
-            // Each minute for an hour, the train goes ... km/min
-            let getSpeedInMinutesForHour = newResult/60;
-
-            console.log("Average minute speed: " + getSpeedInMinutesForHour);
-
-            let getTimeTaken = (responseFromFetch/newResult) * 60;
-            
-            console.log("Time between stations: " + getTimeTaken);
-
-            timee+=getTimeTaken;
-
-            console.log("time " + timee);
-
-            let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
-                stationsOnPath[i].Name, getTimeTaken);
-            array.push(newStationClass);
-        }*/
         else if(i >= 1){
             let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i - 1].Name
              + "/" + stationsOnPath[i].Name );
@@ -320,7 +260,13 @@ async function GetDistanceEachStation( stationsOnPath ){
 
             let getTimeTaken = (responseFromFetch/newResult) * 60;
 
-            timeDate = new Date(getDateHTML.value + " " + array[i - 1].Time)
+            console.log(stationsOnPath.length);
+            console.log(stationsOnPath[i]);
+            console.log(i);
+            console.log(array);
+            console.log(array[i - 1]);
+
+            timeDate = new Date(getDateHTML.value + " " + array[i - 1].time)
             timeDate.setMinutes( timeDate.getMinutes() + Math.ceil(getTimeTaken) )
             let formatTime = timeDate.toLocaleTimeString("en-GB");
             let splittingByColon = formatTime.toString().split(":");
@@ -379,18 +325,33 @@ function CreateGrid(){
     getGrid.style.gridTemplateRows = "repeat(" + (array.length + 1) + ", 100px )";
     let getNumberOfColumns = window.getComputedStyle(getGrid).getPropertyValue("grid-template-columns").split(" ").length;
     
-    let columnTitles = [ "Station Name", "Itinerary", "Arrival Time", "Information", "Notifications" ];
+    let columnTitles = [ "Station Name", "Path", "Arrival Time", "Information", "Notifications" ];
     //let columnTitlesHeight = [ "30%", "100%", "62%", "63%", "60%" ];
 
     for (let l = 0; l < getNumberOfColumns; l++) {
         let currentTitleElement = document.createElement('h5');
         currentTitleElement.innerHTML = columnTitles[l];
-        currentTitleElement.style.fontSize = "14.5px";
+        currentTitleElement.style.fontSize = "15.5px";
         currentTitleElement.style.gridRow = 1;
-        currentTitleElement.style.borderBottom = "3px solid black";
+        //currentTitleElement.style.borderBottom = "3px solid black";
         currentTitleElement.style.gridColumn = (l + 1);
-        currentTitleElement.style.textAlign = "center";
+
+        if (l === 0){
+            currentTitleElement.style.textAlign = "end";
+            currentTitleElement.style.placeSelf = "end end";
+            currentTitleElement.style.marginRight = "30px";
+        }
+        else if (l === 2){
+            currentTitleElement.style.textAlign = "start";
+            currentTitleElement.style.placeSelf = "end start";
+            currentTitleElement.style.marginLeft = "10px";
+        }
+        else{
+            currentTitleElement.style.textAlign = "center";
+            currentTitleElement.style.placeSelf = "end center";
+        }
         currentTitleElement.style.textDecoration = "underline";
+        currentTitleElement.style.marginBottom = "30px";
         getGrid.appendChild(currentTitleElement);
     }
 
@@ -418,6 +379,7 @@ function CreateGrid(){
         theTime.style.gridRow = (i + 1);
         theTime.style.gridColumn = 3;
         theTime.style.fontSize = "14.75px";
+        theTime.style.marginLeft = "15px";
         getGrid.appendChild(theTime);
 
         if (i === 1){
