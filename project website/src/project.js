@@ -17,6 +17,7 @@ async function GettingAllStations(){
             getAllStations[m].appendChild(createOption);
         }
     }
+    console.log(responseFromFetch);
 }
 
 GettingAllStations();
@@ -59,11 +60,20 @@ async function GetDistanceBetweenStations(){
 }
 
 let timee = 0;
+let getTimeFromInput = null;
 
 let getStartTripButton = document.querySelector('#submit-btn');
 getStartTripButton.addEventListener('click', (event) => {
-    console.log(document.querySelector('input[type="time"]').value);
+
+    if (getStartStation.value === getEndStation.value){
+        alert("Start station and End station cannot be the same!");
+        event.preventDefault();
+        return;
+    }
+    getTimeFromInput = document.querySelector('input[type="time"]');
+
     console.clear();
+    console.log(getTimeFromInput.value);
     timee = 0;
     GetStationsPath();
     GetDistanceBetweenStations();
@@ -71,12 +81,135 @@ getStartTripButton.addEventListener('click', (event) => {
     event.preventDefault();
 })
 
+let startStationSchedule = null;
+let getHoursFromStation = []; 
+let getClosestTime = null;
+
 async function GetStartStationSchedule(){
 
     let fetchSchedule = await fetch( "http://10.101.0.12:8080/schedule/" + getStartStation.value );
     let responseFromFetch = await fetchSchedule.json();
 
+    // Getting the promise for the fetch
+    let fetchAllStations = await fetch( "http://10.101.0.12:8080/stations" );
+    // Getting the response json from the json promise
+    let responseAllStations = await fetchAllStations.json();
+
+    let indexOfStartStation = responseAllStations.findIndex(element => element.Name === getStartStation.value );
+    let stationIdOfStartStation = responseAllStations[indexOfStartStation].StationId;
+    console.log(stationIdOfStartStation);
+    let indexOfEndStation = responseAllStations.findIndex(element => element.Name === getEndStation.value );
+    let stationIdOfEndStation = responseAllStations[indexOfEndStation].StationId;
+    console.log(stationIdOfEndStation);
+    console.log(getAllStationsOnPath);
+
+    let fetchAllSegments = await fetch( "http://10.101.0.12:8080/segments" );
+    // Getting the response json from the json promise
+    let responseFromAllSegments = await fetchAllSegments.json();
+    console.log(responseFromAllSegments);
+
+    let findSegmentIdIndex = getAllStationsOnPath.findIndex(element => element.Name === getStartStation.value);
+    let segmentIdFromStartStation = getAllStationsOnPath[findSegmentIdIndex].SegmentId;
+    console.log(segmentIdFromStartStation);
+
+    startStationSchedule = responseFromFetch.filter(element => element.SegmentId === segmentIdFromStartStation);
+    console.log(startStationSchedule);
+
     console.log(responseFromFetch);
+    console.log(responseFromFetch[4].Time);
+    let newDate = new Date(responseFromFetch[4].Time);
+    let neww = newDate.toLocaleTimeString("en-GB");
+    let newDate1 = new Date(responseFromFetch[8].Time);
+    let neww1 = newDate1.toLocaleTimeString("en-GB");
+    console.log(newDate);
+    console.log(neww);
+    console.log(neww1);
+
+    let dateDiff = Math.abs(neww - neww1);
+    console.log(dateDiff);
+    let today = new Date();
+    console.log(today.getUTCDate());
+    console.log(newDate.getMinutes());
+
+    let dummy = await fetch( "http://10.101.0.12:8080/stations/" + 1 );
+    let dum = await dummy.json();
+    console.log(dum);
+
+    let u = await fetch( "http://10.101.0.12:8080/notifications/" + 1 );
+    let ui = await u.json();
+    console.log(ui);
+
+
+    let indexOfStartingTime = null;
+    let currentClosest = null;
+
+    let hrs = getTimeFromInput.value.split(":")[0];
+    let mins = getTimeFromInput.value.split(":")[1];
+
+    for (let r = 0; r < startStationSchedule.length; r++) {
+
+        let getRidOfFront = startStationSchedule[r].Time.toString().split("T");
+        let getRidOfBack = getRidOfFront[1].split(".");
+        console.log(getRidOfFront);
+        console.log(getRidOfBack);
+
+        let dummyDate = new Date(getRidOfFront[0] + " " + getRidOfBack[0]);
+        console.log(dummyDate.getHours(), (parseInt(hrs) + 1));
+        console.log(dummyDate.toLocaleTimeString("en-GB"), dummyDate, parseInt(hrs), startStationSchedule[r].Time);
+        
+        if (dummyDate.getHours() === parseInt(hrs)){
+            console.log(dummyDate.getHours(), parseInt(hrs), startStationSchedule[r].Time, "yes");
+            getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
+        }
+        else if (dummyDate.getHours() === (parseInt(hrs) + 1)){
+            console.log(dummyDate.getHours(), parseInt(hrs), startStationSchedule[r].Time, "yes");
+            getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
+            break;
+        }
+    }
+    
+    console.log(getHoursFromStation);
+
+    console.log(hrs);
+    console.log(mins);
+
+    let dateFromTimeValue = new Date( getTimeFromInput);
+        console.log(dateFromTimeValue.getTime() );
+
+    for (let t = 0; t < getHoursFromStation.length; t++) {
+
+        let newDateInArray = new Date(getHoursFromStation[t]);
+        let dateAsString = newDateInArray.toLocaleTimeString("en-GB");
+        console.log(newDateInArray, getTimeFromInput.value);
+
+        if (t === 0){
+            currentClosest = 100;
+        }
+        
+        console.log(parseInt(mins), newDateInArray.getMinutes());
+        if (parseInt(mins) === newDateInArray.getMinutes()){
+            indexOfStartingTime = t;
+            break;
+        }
+        else{
+            let dateDiff = (parseInt(mins) - newDateInArray.getMinutes());
+
+            if(dateDiff < 0){
+                indexOfStartingTime = t;
+                break;
+            }
+            if (t === (getHoursFromStation.length - 1)){
+                indexOfStartingTime = t;
+                break;
+            }
+            if (currentClosest > dateDiff){
+                currentClosest = dateDiff;
+                indexOfStartingTime = t;
+            }
+        }
+    }
+    console.log(getHoursFromStation[indexOfStartingTime]);
+    getClosestTime = getHoursFromStation[indexOfStartingTime];
 }
 
 async function GetDistanceEachStation( stationsOnPath ){
@@ -89,13 +222,13 @@ async function GetDistanceEachStation( stationsOnPath ){
                 stationsOnPath[i].Name, 0);
             array.push(newStationClass);
         }
-        else if (i == 1){
+        /*else if (i == 1){
             let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i].Name 
-            + "/" + stationsOnPath[i + 1].Name );
+            + "/" + stationsOnPath[i - 1].Name );
             let responseFromFetch = await fetchDistance.json();
 
             console.log("Distance " + stationsOnPath[i].Name + " and " +
-            stationsOnPath[i + 1].Name + ": " + responseFromFetch);
+            stationsOnPath[i - 1].Name + ": " + responseFromFetch);
 
             counter += responseFromFetch;
 
@@ -125,12 +258,12 @@ async function GetDistanceEachStation( stationsOnPath ){
             let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
                 stationsOnPath[i].Name, getTimeTaken);
             array.push(newStationClass);
-        }
-        else if(i > 1){
-            let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i - 1].Name 
-            + "/" + stationsOnPath[i].Name );
+        }*/
+        else if(i >= 1){
+            let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i - 1].Name
+             + "/" + stationsOnPath[i].Name );
             let responseFromFetch = await fetchDistance.json();
- 
+            console.log("response "+ responseFromFetch);
             console.log("Distance " + stationsOnPath[i - 1].Name + " and " +
             stationsOnPath[i].Name + ": " + responseFromFetch);
 
