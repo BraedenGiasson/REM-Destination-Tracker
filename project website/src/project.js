@@ -20,7 +20,8 @@ async function GettingAllStations(){
             getAllStations[m].appendChild(createOption);
         }
     }
-    console.log(responseFromStationsFetch);
+    
+    console.log(responseFromStationsFetch); // for my own use
 }
 
 //#endregion
@@ -46,7 +47,7 @@ async function GetStationsPath(){
     getNumStationsOnPath = responseFromPathFetch.length; // number of stations on path
     getAllStationsOnPath = responseFromPathFetch; // array of station objects on path
 
-    console.log(responseFromPathFetch);
+    console.log(responseFromPathFetch); // for my own use
 }
 
 //#endregion
@@ -66,6 +67,7 @@ async function GetDistanceBetweenStations(){
     let responseFromDistanceFetch = await fetchDistance.json();
     totalDistance = responseFromDistanceFetch; /* CAN DELETE */
 
+    // for my own use
     console.log("Distance between beginning stations: " + responseFromDistanceFetch); /* CAN DELETE */
 }
 
@@ -108,6 +110,7 @@ getStartTripButton.addEventListener('click', async (event) => {
     console.clear(); // clearing console
     console.log(getTimeHTML.value); /* CAN DELETE */
     timee = 0; /* CAN DELETE */
+
     ExecuteMethods(); // If all checks out, continue with path
     event.preventDefault();
 })
@@ -136,34 +139,20 @@ async function GetStartStationSchedule(){
     let fetchSchedule = await fetch( "http://10.101.0.12:8080/schedule/" + getStartStation.value );
     let responseFromScheduleFetch = await fetchSchedule.json();
 
-    console.log(getAllStationsOnPath);
-
     // Getting all segments
     let fetchAllSegments = await fetch( "http://10.101.0.12:8080/segments" );
     let responseFromAllSegments = await fetchAllSegments.json();
-
-    console.log(responseFromAllSegments);
 
     // Getting segment id index of the first station
     let findSegmentIdIndex = getAllStationsOnPath.findIndex(element => element.Name === getStartStation.value);
     // Getting segment id of the first station
     let segmentIdFromStartStation = getAllStationsOnPath[findSegmentIdIndex].SegmentId;
-    
-    console.log(segmentIdFromStartStation);
 
     // Getting the start station schedule WITH ONLY the matching segments id's
     startStationSchedule = responseFromScheduleFetch.filter(element => element.SegmentId === segmentIdFromStartStation);
-
-    console.log(startStationSchedule);
-    console.log(responseFromScheduleFetch);
     
     let hrs = getTimeHTML.value.split(":")[0]; // getting hours from input time string
     let mins = getTimeHTML.value.split(":")[1]; // getting minutes from input time string
-
-    console.log(getHoursFromStation);
-
-    console.log(hrs);
-    console.log(mins);
 
     GetMatchingHours( hrs );
 
@@ -171,6 +160,15 @@ async function GetStartStationSchedule(){
     
     getClosestTime = getHoursFromStation[indexOfStartingTime]; // setting closest time
     
+    // for my own use
+    console.log(getAllStationsOnPath);
+    console.log(responseFromAllSegments);
+    console.log(segmentIdFromStartStation);
+    console.log(startStationSchedule);
+    console.log(responseFromScheduleFetch);
+    console.log(getHoursFromStation);
+    console.log(hrs);
+    console.log(mins);
     console.log(getClosestTime);
 }
 
@@ -188,28 +186,24 @@ function GetMatchingHours( hrs ){
         // Splitting the time string to get time before char .
         let getRidOfBack = getRidOfFront[1].split(".");
 
-        console.log(getRidOfFront);
-        console.log(getRidOfBack);
-
         // Temp date to get matching time hours
         let dummyDate = new Date(getRidOfFront[0] + " " + getRidOfBack[0]);
-
-        console.log(dummyDate.getHours(), (parseInt(hrs) + 1));
-        console.log(dummyDate.toLocaleTimeString("en-GB"), dummyDate, parseInt(hrs), startStationSchedule[r].Time);
         
         // If hours match from temp date and hours from input, push to array
-        if (dummyDate.getHours() === parseInt(hrs)){
-            console.log(dummyDate.getHours(), parseInt(hrs), startStationSchedule[r].Time, "yes");
-            
+        if (dummyDate.getHours() === parseInt(hrs)){            
             getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
         }
         // Getting the first time for the next hour (in case input hour is that last for that hour)  
         else if (dummyDate.getHours() === (parseInt(hrs) + 1)){
-            console.log(dummyDate.getHours(), parseInt(hrs), startStationSchedule[r].Time, "yes");
-            
             getHoursFromStation.push(getRidOfFront[0] + " " + getRidOfBack[0]);
             return;
         }
+
+        // for my own use
+        console.log(getRidOfFront);
+        console.log(getRidOfBack);
+        console.log(dummyDate.getHours(), (parseInt(hrs) + 1));
+        console.log(dummyDate.toLocaleTimeString("en-GB"), dummyDate, parseInt(hrs), startStationSchedule[r].Time);
     }
 }
 
@@ -226,14 +220,10 @@ function GetClosestTimeToInputTime( mins ){
         // Creating date from current station on path
         let newDateInArray = new Date(getHoursFromStation[t]);
 
-        console.log(newDateInArray, getTimeHTML.value);
-
         // Intializing currentClosest to large number
         if (t === 0){
             currentClosest = 100;
         }
-        
-        console.log(parseInt(mins), newDateInArray.getMinutes());
 
         // If the times match (time to leave now), return the current index
         if (parseInt(mins) === newDateInArray.getMinutes()){
@@ -254,136 +244,181 @@ function GetClosestTimeToInputTime( mins ){
                 indexOfStartingTime = t;
             }
         }
+
+        // for my own use
+        console.log(newDateInArray, getTimeHTML.value);
+        console.log(parseInt(mins), newDateInArray.getMinutes()); 
     }
     return indexOfStartingTime;
 }
 
 //#endregion
 
+//#region Getting the distance between each station on the path
+
 async function GetDistanceEachStation( stationsOnPath ){
-    let counter = 0;
-    console.log(stationsOnPath);
+
+    console.log(stationsOnPath); // for my own use
+
+    let counter = 0; // for my own use
+    
     for (let i = 0; i < stationsOnPath.length; i++) {
         
+        // Creating date from the closest time to the input time
         let timeDate = new Date(getClosestTime);
         
+        // If first index, start at closest time
         if (i === 0){
+            // Formating time
             let splittingByColon = timeDate.toLocaleTimeString("en-GB").toString().split(":");
             let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
 
+            // Start at closest time
             let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
                 stationsOnPath[i].Name, newFormatedTime);
             array.push(newStationClass);
         }
+        // Add times to previous times
         else if(i >= 1){
+            // Fetching distance between current and previous station
             let fetchDistance = await fetch ( "http://10.101.0.12:8080/distance/" + stationsOnPath[i - 1].Name
-             + "/" + stationsOnPath[i].Name );
+                + "/" + stationsOnPath[i].Name );
             let responseFromFetch = await fetchDistance.json();
-            console.log("response "+ responseFromFetch);
-            console.log("Distance " + stationsOnPath[i - 1].Name + " and " +
-            stationsOnPath[i].Name + ": " + responseFromFetch);
 
-            counter+=responseFromFetch;
-
-            console.log("counter " + counter);
-
-            console.log("distance left: " + (totalDistance - counter));
-
+            // Fetching average speed for trains
             let fetchSpeed = await fetch( "http://10.101.0.12:8080/averageTrainSpeed" );
             let newresponse = await fetchSpeed.json();
 
-            let newResult = newresponse[0].AverageSpeed;
-            console.log("speed " + newResult);
+            // Getting average speed
+            let averageSpeed = newresponse[0].AverageSpeed;
 
             // Each minute for an hour, the train goes ... km/min
-            let getSpeedInMinutesForHour = newResult/60;
+            let getSpeedInMinutesForHour = averageSpeed/60;
+            let getTimeTaken = (responseFromFetch/averageSpeed) * 60;
 
-            console.log("Average minute speed: " + getSpeedInMinutesForHour);
-
-            let getTimeTaken = (responseFromFetch/newResult) * 60;
-
-            console.log(stationsOnPath.length);
-            console.log(stationsOnPath[i]);
-            console.log(i);
-            console.log(array);
-            console.log(array[i - 1]);
-
+            // setting new added minutes from time between stations
             timeDate = new Date(getDateHTML.value + " " + array[i - 1].time)
             timeDate.setMinutes( timeDate.getMinutes() + Math.ceil(getTimeTaken) )
+            
+            // Formating time to just show hours and minutes
             let formatTime = timeDate.toLocaleTimeString("en-GB");
             let splittingByColon = formatTime.toString().split(":");
             let newFormatedTime = splittingByColon[0] + ":" + splittingByColon[1];
-            console.log(formatTime);
-            
-            console.log("Time between stations: " + getTimeTaken);
 
-            timee+=getTimeTaken;
-
-            console.log("time " + timee);
-
+            // If there's not a duplicate (back-to-back) station, add to array
             if (getAllStationsOnPath[i].StationId !== getAllStationsOnPath[i - 1].StationId){
                 let newStationClass = new Station(stationsOnPath[i].StationId, stationsOnPath[i].SegmentId, 
                     stationsOnPath[i].Name, newFormatedTime);
                 array.push(newStationClass);
             }
+
+            // for my own use
+            counter+=responseFromFetch;
+            timee+=getTimeTaken;
+
+            // Logs for my own use
+            console.log("response "+ responseFromFetch);
+            console.log("Distance " + stationsOnPath[i - 1].Name + " and " +
+                stationsOnPath[i].Name + ": " + responseFromFetch);
+            console.log("counter " + counter);
+            console.log("distance left: " + (totalDistance - counter));
+            console.log("speed " + averageSpeed);
+            console.log("Average minute speed: " + getSpeedInMinutesForHour);
+            console.log("Time between stations: " + getTimeTaken);
+            console.log("time " + timee);
         }
     }
+    // Logs for my own use
     console.log("final counter " + counter);
     console.log("final time " + timee);
-
     console.log(array);
-    CreateGrid();
     console.log(getAllStationsOnPath);
+
+    CreateGrid();
 }
 
+//#endregion
+
 let isDifferent = false;
-let isFirstRow = false;
+let getGrid = document.querySelector('.grid-container');
+
+//#region Creating Grid
 
 function CreateGrid(){
 
-    let getGrid = document.querySelector('.grid-container');
+    // Setting how many rows in grid (number of stations on path)
     getGrid.style.gridTemplateRows = "repeat(" + (array.length + 1) + ", 100px )";
+    // Getting number of columns for grid
     let getNumberOfColumns = window.getComputedStyle(getGrid).getPropertyValue("grid-template-columns").split(" ").length;
-    
     let columnTitles = [ "Station Name", "Path", "Arrival Time", "Information", "Notifications" ];
-    //let columnTitlesHeight = [ "30%", "100%", "62%", "63%", "60%" ];
 
+    CreateDetailsForColumnTitles( getNumberOfColumns, columnTitles );
+
+    CreateNameAndTime();
+}
+
+//#endregion
+
+//#region Creating details for each column in grid
+
+function CreateDetailsForColumnTitles( getNumberOfColumns, columnTitles ){
+
+    const firstColumn = 0, thirdColumn = 2;
+
+    // Create all titles for each column in grid
     for (let l = 0; l < getNumberOfColumns; l++) {
+
+        // Creating details for each column title
         let currentTitleElement = document.createElement('h5');
         currentTitleElement.innerHTML = columnTitles[l];
         currentTitleElement.style.fontSize = "15.5px";
         currentTitleElement.style.gridRow = 1;
-        //currentTitleElement.style.borderBottom = "3px solid black";
         currentTitleElement.style.gridColumn = (l + 1);
 
-        if (l === 0){
+        // Positioning title
+        if (l === firstColumn){
             currentTitleElement.style.textAlign = "end";
             currentTitleElement.style.placeSelf = "end end";
             currentTitleElement.style.marginRight = "30px";
         }
-        else if (l === 2){
+        // Positioning title
+        else if (l === thirdColumn){
             currentTitleElement.style.textAlign = "start";
             currentTitleElement.style.placeSelf = "end start";
             currentTitleElement.style.marginLeft = "10px";
         }
+        // Positioning title
         else{
             currentTitleElement.style.textAlign = "center";
             currentTitleElement.style.placeSelf = "end center";
         }
+
         currentTitleElement.style.textDecoration = "underline";
         currentTitleElement.style.marginBottom = "30px";
         getGrid.appendChild(currentTitleElement);
     }
+}
+
+//#endregion
+
+//#region Creating name and time and canvas details for grid
+
+function CreateNameAndTime(){
 
     for (let i = 1; i <= array.length; i++) {
+
+        // Creating details to display station name
         let theName = document.createElement("div");
 
+        // If start station
         if(i === 1){
             theName.innerHTML = "Start at " + array[i - 1].name;
         }
+        // If end station
         else if (i === (array.length)){
             theName.innerHTML = "Arrive at " + array[i - 1].name;
         }
+        // If normal station on path
         else{
             theName.innerHTML = array[i - 1].name;
         }
@@ -394,6 +429,7 @@ function CreateGrid(){
         theName.style.fontSize = "14.75px";
         getGrid.appendChild(theName);
 
+        // Creating details to display time
         let theTime = document.createElement("div");
         theTime.innerHTML = array[i - 1].time;
         theTime.style.gridRow = (i + 1);
@@ -402,76 +438,83 @@ function CreateGrid(){
         theTime.style.marginLeft = "15px";
         getGrid.appendChild(theTime);
 
-        if (i === 1){
-            theName.style.gridRowGap = "30px";
-            theTime.style.gridRowGap = "30px";
-            isFirstRow = true;
-        }
-        else{
-            isFirstRow = false;
-        }
-
         if(i > 1){
+            // If the segment id is different to the previous, set to true (changing segments)
             if (array[i - 1].SegmentId !== array[i - 2].SegmentId){
                 isDifferent = true;
             }
         }
 
+        // If it's the last index, don't create extra line,
+        // else, create the line between stations
         if (i !== (array.length)){
-            CreateLine( getGrid, i, isDifferent, isFirstRow );
+            CreateLine( i, isDifferent );
         }
-        CreateRectangle( getGrid, i, isDifferent, isFirstRow );
+        CreateRectangle( i, isDifferent );
     }
-    
 }
-function CreateLine( getGrid, i, isDifferent, isFirstRow ){
+
+//#endregion
+
+//#region Creating line between stations
+
+function CreateLine( i, isDifferent ){
+    // Creating canvas and canvas details
     let createCanvas = document.createElement('canvas');
-    createCanvas.width = 30;
-    createCanvas.height = 100;
+    SettingCanvasWidthHeight( createCanvas );
     let canvas2d = createCanvas.getContext('2d');
     canvas2d.beginPath();
     canvas2d.moveTo(2,0);
     canvas2d.lineWidth = 2;
     canvas2d.lineTo(0, 300);
-
-    if (isDifferent){
-        canvas2d.strokeStyle = "#1F06FE";
-    }
-    else{
-        canvas2d.strokeStyle = "black";
-    }
-    if(isFirstRow){
-        createCanvas.style.gridRowGap = "30px";
-    }
-
     canvas2d.stroke();
-    document.body.appendChild(createCanvas);
-    createCanvas.style.gridColumn = 2;
-    createCanvas.style.gridRow = (i + 1);
-    createCanvas.style.marginLeft = "40%";
-    getGrid.appendChild(createCanvas);
+    
+    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "40%" );
 }
-function CreateRectangle( getGrid, i, isDifferent, isFirstRow ){
+
+//#endregion
+
+//#region Creating Rectangle (dot point for each station)
+
+function CreateRectangle( i, isDifferent ){
+    // Creating canvas and canvas details
     let createCanvas = document.createElement('canvas');
+    SettingCanvasWidthHeight( createCanvas );
+    let canvas2d = createCanvas.getContext('2d');
+    canvas2d.fillRect(0,0,7,7);
+
+    CreatingCanvasDetails( createCanvas, canvas2d, i, isDifferent, "37%" )
+}
+
+//#endregion
+
+//#region Setting canvas width/height
+
+function SettingCanvasWidthHeight( createCanvas ){
+
     createCanvas.width = 30;
     createCanvas.height = 100;
-    let canvas2d = createCanvas.getContext('2d');
+}
 
+//#endregion
+
+//#region Creating details for canvas (line and dot)
+
+function CreatingCanvasDetails ( createCanvas, canvas2d, i, isDifferent, value ){
+
+    // If the segment is different, change the color to blue; else, keep black
     if (isDifferent) {
         canvas2d.fillStyle = "#1F06FE";
     }
     else{
         canvas2d.fillStyle = "black";
-    }
-    if(isFirstRow){
-        createCanvas.style.gridRowGap = "30px";
-    }
-    
-    canvas2d.fillRect(0,0,7,7)
+    } 
+
     document.body.appendChild(createCanvas);
     createCanvas.style.gridColumn = 2;
     createCanvas.style.gridRow = (i + 1);
-    createCanvas.style.marginLeft = "37%";
-    createCanvas.style.zIndex = 10;
+    createCanvas.style.marginLeft = value;
     getGrid.appendChild(createCanvas);
 }
+
+//#endregion
