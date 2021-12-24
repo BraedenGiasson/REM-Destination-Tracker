@@ -627,6 +627,8 @@ async function CreateNameAndTime(){
 
 //#endregion
 
+//#region Logic for External API information
+
 function ExternalAPILogic( responseFromNewsFetch, currentClosestDay ){
 
     let indexOfClosestDateDay = null;
@@ -651,6 +653,8 @@ function ExternalAPILogic( responseFromNewsFetch, currentClosestDay ){
 
     //#endregion
 
+    let getTheDate = null;
+
             // Finding the news article with the closest date to input date
             for (let c = 0; c < responseFromNewsFetch.articles.length; c++) {
 
@@ -660,11 +664,14 @@ function ExternalAPILogic( responseFromNewsFetch, currentClosestDay ){
                 // If the dates are the same
                 if (getDateHTML.value == getRidOfFront[0]){
                     indexOfClosestDateDay = c;
+                    getTheDate = getRidOfFront[0];
                     break;
                 }
                 else{
 
+                    // Splitting current date
                     let getUnformatedDateFromNews = getRidOfFront[0].toString().split("-");
+                    // Splitting input date
                     let getUnformatedDateFromInput = getDateHTML.value.toString().split("-");
 
                     // Checking if the months match
@@ -677,6 +684,7 @@ function ExternalAPILogic( responseFromNewsFetch, currentClosestDay ){
                         if (currentClosestDay > getDiffInDays){
                             currentClosestDay = getDiffInDays;
                             indexOfClosestDateDay = c;
+                            getTheDate = getRidOfFront[0];
                         }
                     }
 
@@ -693,11 +701,17 @@ function ExternalAPILogic( responseFromNewsFetch, currentClosestDay ){
             let titleHyperlinked = titleText.link(responseFromNewsFetch.articles[indexOfClosestDateDay].url);
             getTitleHTML.innerHTML = titleHyperlinked;
 
+            // Adding date to title
+            let getH4 = document.querySelector('h4');
+            getH4.innerHTML += (getTheDate + ":");
+
             // Showing div with api information
             let getDivForTitle = document.querySelector('#external-api')
             getDivForTitle.style.display = "flex";
 
 }
+
+//#endregion
 
 //#region Creating styling elements for current element to be displayed
 
