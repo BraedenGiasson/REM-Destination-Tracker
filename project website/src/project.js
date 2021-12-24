@@ -1,3 +1,8 @@
+
+//let nearest = require('../../node_modules/nearest-date'); // getting package
+// import nearest from '../package-lock.json'; // getting package
+
+
 //#region Getting all stations to display in dropdowns
 
 document.addEventListener('DOMContentLoaded', GettingAllStations);
@@ -187,10 +192,8 @@ function GetMatchingHours( theHours, theSchedule, arrayToAddTo ){
 
         // Splitting the time string to get time after char T
         let getRidOfFront = theSchedule[r].Time.toString().split("T");
-        console.log(getRidOfFront);
         // Splitting the time string to get time before char .
         let getRidOfBack = getRidOfFront[1].split(".");
-        console.log(getRidOfBack);
 
         // Temp date to get matching time hours
         let dummyDate = new Date(getRidOfFront[0] + " " + getRidOfBack[0]);
@@ -509,6 +512,8 @@ function CreateDetailsForColumnTitles( getNumberOfColumns, columnTitles ){
 /* MIGHT NEED TO REMOVE */
 async function CreateNameAndTime(){
 
+    let currentClosestDay = 100;
+
     for (let i = 1; i <= arrayOfStationsOnPath.length; i++) {
 
         // Creating details to display station name
@@ -588,27 +593,111 @@ async function CreateNameAndTime(){
             CreateLine( i, isDifferent );
         }
         CreateRectangle( i, isDifferent ); // creating rectangle
+
+        //#region External API from https://newsapi.org/docs/endpoints/everything
+
         if (i === arrayOfStationsOnPath.length){
             
-            let getPElement = document.querySelector('p');
+            // Getting p to display segment names
+            let getPElement = document.querySelector('#segment-name');
             getPElement.style.display = "block";
 
+            // If two segments, display names
             if(isDifferent){
                 getPElement.innerHTML = "(Black is segment " + arrayOfStationsOnPath[0].segmentId
                     + ", Blue is segment " + arrayOfStationsOnPath[arrayOfStationsOnPath.length - 1].segmentId + ")";
             }
+            // If one segments, display name
             else{
                 getPElement.innerHTML = "(Black is segment " + arrayOfStationsOnPath[0].segmentId + ")";
             }
 
-            let fetchWeather = await fetch("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Montreal?unitGroup=metric&key=63LJ2AXSUK5V5VEBYN9JRZY6Y&contentType=json");
-            let responseFromWeather = await fetchWeather.json();
-            console.log(responseFromWeather);
+            // Fetching news from api
+            let fetchNews = await fetch("https://newsapi.org/v2/everything?q=bitcoin&apiKey=449b2941ac034f4e9dc5db76988a4085");
+            let responseFromNewsFetch = await fetchNews.json();
+            console.log(responseFromNewsFetch);
+
+            ExternalAPILogic( responseFromNewsFetch, currentClosestDay );
+
         }
+
+        //#endregion
     }
 }
 
 //#endregion
+
+function ExternalAPILogic( responseFromNewsFetch, currentClosestDay ){
+
+    let indexOfClosestDateDay = null;
+    let arrayOfTimesFromNews = []; // array of times
+
+    //#region I tried using a library to find nearest time, but couldn't get it to work
+
+            // Putting all response times in an array
+            for (let n = 0; n < responseFromNewsFetch.articles.length; n++) {
+
+                // Splitting the time string to get time after char T
+                let getRidOfFront = responseFromNewsFetch.articles[n].publishedAt.toString().split("T");
+
+                arrayOfTimesFromNews.push( new Date(getRidOfFront[0]) ); // adding to array
+            }
+            console.log(arrayOfTimesFromNews); // my own use
+
+            let inputDate = new Date( getDateHTML.value );
+
+            //let findIndexOfNearestDate = nearest(arrayOfTimesFromNews, inputDate); //. finding nearest date using library
+            //console.log(findIndexOfNearestDate); // my own use
+
+    //#endregion
+
+            // Finding the news article with the closest date to input date
+            for (let c = 0; c < responseFromNewsFetch.articles.length; c++) {
+
+                // Splitting the time string to get time after char T
+                let getRidOfFront = responseFromNewsFetch.articles[c].publishedAt.toString().split("T");
+
+                // If the dates are the same
+                if (getDateHTML.value == getRidOfFront[0]){
+                    indexOfClosestDateDay = c;
+                    break;
+                }
+                else{
+
+                    let getUnformatedDateFromNews = getRidOfFront[0].toString().split("-");
+                    let getUnformatedDateFromInput = getDateHTML.value.toString().split("-");
+
+                    // Checking if the months match
+                    if (parseInt(getUnformatedDateFromInput[1]) === parseInt(getUnformatedDateFromNews[1])){
+
+                        // Getting difference in days
+                        let getDiffInDays = Math.abs(parseInt(getUnformatedDateFromInput[2]) - parseInt(getUnformatedDateFromNews[2]));
+
+                        // Getting current closest
+                        if (currentClosestDay > getDiffInDays){
+                            currentClosestDay = getDiffInDays;
+                            indexOfClosestDateDay = c;
+                        }
+                    }
+
+                    // my use
+                    console.log(getUnformatedDateFromNews);
+                    console.log(getUnformatedDateFromInput);
+                }
+            }
+            console.log(indexOfClosestDateDay);
+
+            // Getting news article title and hyperlinking it
+            let getTitleHTML = document.querySelector('#title');
+            let titleText = responseFromNewsFetch.articles[indexOfClosestDateDay].title;
+            let titleHyperlinked = titleText.link(responseFromNewsFetch.articles[indexOfClosestDateDay].url);
+            getTitleHTML.innerHTML = titleHyperlinked;
+
+            // Showing div with api information
+            let getDivForTitle = document.querySelector('#external-api')
+            getDivForTitle.style.display = "flex";
+
+}
 
 //#region Creating styling elements for current element to be displayed
 

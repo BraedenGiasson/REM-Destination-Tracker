@@ -10,6 +10,11 @@
 <body>
     <header>
         <h1 id="project-name">Maps</h1>
+
+        <div id="external-api">
+            <h4>Title article:</h4>
+            <p id="title"></p>
+        </div>
         <!-- <h2 id="login">Log In</h2> -->
     </header>
     <main>
@@ -40,7 +45,7 @@
 
             <label for="date" >Choose a Date for your trip</label>
 
-            <input type="date" name="date" min="2021-12-25" max="2022-01-03" required>
+            <input type="date" name="date" min="2021-12-01" max="2021-12-31" required>
 
             <!-- Time for their trip -->
 
@@ -57,11 +62,11 @@
             </div>
 
             <!-- Displaying segment names -->
-            <p></p>
+            <p id="segment-name"></p>
         </form>
     </main>
     
-    <script src="./src/project.js"></script>
+    <script type="module" src="./src/project.js"></script>
     <script src="./src/stationClass.js"></script>
 </body>
 </html>

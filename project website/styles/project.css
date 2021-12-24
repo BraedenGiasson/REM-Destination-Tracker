@@ -79,7 +79,13 @@ select:hover, option:hover, input[type="date"]:hover, input[type="time"]:hover{
     margin-top: 20px;
      justify-content: center;
 }
-P{
+#segment-name{
     display: none;
-    margin-left: 350px;
+    margin: 0 auto;
+}
+#external-api{
+    display: none;
+}
+#external-api > *{
+    margin-right: 10px;
 }
